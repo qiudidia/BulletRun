@@ -1,0 +1,157 @@
+[gd_scene load_steps=3 format=4]
+
+[ext_resource type="Script" path="res://scenes/game/multiplayer/ZombieCoopGame.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/GameMap.gd" id="2"]
+
+[node name="ZombieCoopGame" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Map" type="Node2D" parent="."]
+script = ExtResource("2")
+map_size = Vector2(2400, 2400)
+obstacle_count = 36
+map_type = 0
+barrel_count = 10
+shop_zone_center = Vector2(900, 900)
+shop_zone_radius = 250.0
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="WaveLabel" type="Label" parent="UI"]
+position = Vector2(20, 20)
+text = "波次: 1"
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+
+[node name="EnemiesLabel" type="Label" parent="UI"]
+position = Vector2(20, 70)
+text = "剩余敌人: 5"
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+
+[node name="HealthLabel" type="Label" parent="UI"]
+position = Vector2(20, 120)
+text = "生命: 100"
+theme_override_font_sizes/font_size = 20
+
+[node name="HealthBar" type="ProgressBar" parent="UI"]
+position = Vector2(20, 160)
+size = Vector2(240, 30)
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="MoneyHUDLabel" type="Label" parent="UI"]
+position = Vector2(20, 200)
+text = "金钱: 0"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+
+[node name="ShopPanel" type="Panel" parent="UI"]
+visible = false
+position = Vector2(400, 110)
+size = Vector2(480, 500)
+
+[node name="VBox" type="VBoxContainer" parent="UI/ShopPanel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 460.0
+offset_bottom = 480.0
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="UI/ShopPanel/VBox"]
+text = "商店 - 波次间隙"
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.8, 0, 1)
+
+[node name="MoneyLabel" type="Label" parent="UI/ShopPanel/VBox"]
+text = "余额: 0"
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.9, 0.9, 0.3, 1)
+
+[node name="HPUpgradeBtn" type="Button" parent="UI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+text = "升级最大生命 (150)"
+
+[node name="DamageUpgradeBtn" type="Button" parent="UI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+text = "升级伤害 (100)"
+
+[node name="AmmoBuyBtn" type="Button" parent="UI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+text = "补充弹药 (50)"
+
+[node name="ContinueBtn" type="Button" parent="UI/ShopPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+text = "继续下一波"
+
+[node name="DeathPanel" type="Panel" parent="UI"]
+visible = false
+position = Vector2(400, 150)
+size = Vector2(480, 400)
+
+[node name="VBox" type="VBoxContainer" parent="UI/DeathPanel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 460.0
+offset_bottom = 380.0
+alignment = 1
+theme_override_constants/separation = 15
+
+[node name="TitleLabel" type="Label" parent="UI/DeathPanel/VBox"]
+text = "你阵亡了！"
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(1, 0.2, 0.2, 1)
+horizontal_alignment = 1
+
+[node name="WaveInfoLabel" type="Label" parent="UI/DeathPanel/VBox"]
+text = "你在第 0 波阵亡"
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="HighWaveLabel" type="Label" parent="UI/DeathPanel/VBox"]
+text = "最高波次: 0"
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1, 0.7, 0, 1)
+horizontal_alignment = 1
+
+[node name="RestartBtn" type="Button" parent="UI/DeathPanel/VBox"]
+custom_minimum_size = Vector2(0, 45)
+text = "再开一局"
+
+[node name="MenuBtn" type="Button" parent="UI/DeathPanel/VBox"]
+custom_minimum_size = Vector2(0, 45)
+text = "返回主菜单"
+
+[node name="ExitConfirmPanel" type="Panel" parent="UI"]
+visible = false
+position = Vector2(400, 150)
+size = Vector2(480, 300)
+
+[node name="VBox" type="VBoxContainer" parent="UI/ExitConfirmPanel"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 460.0
+offset_bottom = 280.0
+alignment = 1
+theme_override_constants/separation = 15
+
+[node name="Label" type="Label" parent="UI/ExitConfirmPanel/VBox"]
+text = "确定要退出到主菜单吗？"
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="ConfirmBtn" type="Button" parent="UI/ExitConfirmPanel/VBox"]
+custom_minimum_size = Vector2(0, 45)
+text = "确认退出"
+
+[node name="CancelBtn" type="Button" parent="UI/ExitConfirmPanel/VBox"]
+custom_minimum_size = Vector2(0, 45)
+text = "取消"

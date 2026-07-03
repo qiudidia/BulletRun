@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=4]
+
+[ext_resource type="Script" path="res://scripts/Barrel.gd" id="1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2"]
+size = Vector2(40, 40)
+
+[node name="Barrel" type="StaticBody2D"]
+script = ExtResource("1")
+collision_layer = 1
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_2")
+
+[node name="Visual" type="ColorRect" parent="."]
+color = Color(0.6, 0.15, 0.05, 1)
+size = Vector2(40, 40)
+position = Vector2(-20, -20)
+
+[node name="Highlight" type="ColorRect" parent="."]
+color = Color(1, 0.4, 0.1, 0.7)
+size = Vector2(44, 8)
+position = Vector2(-22, -28)

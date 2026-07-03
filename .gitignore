@@ -1,0 +1,59 @@
+# Godot 4+ specific ignores
+*.import
+*.md5
+*.translation
+*.ttf.remap
+*.otf.remap
+
+# Godot build artifacts
+*.exe
+*.dmg
+*.x86_64
+*.pck
+*.zip
+*.app/
+
+# Debug
+.mono/
+data_*/
+mono_crash.*.json
+
+# GDScript cache
+.godot/
+
+# Visual Studio / Mono
+.vs/
+.vscode/
+
+# Exported project
+exports/
+
+# CI/testing
+.build/
+
+# Local history
+.local/
+看法/
+
+# Autoload plugins
+addons/
+
+# Version file (每个人可能有不同版本)
+# version.txt  # 取消注释如果你想忽略
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# IDE
+*.swp
+*.swo
+*~
+
+#临时文件
+*.tmp
+*.log
+UpdateTemp/

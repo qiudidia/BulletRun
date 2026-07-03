@@ -1,0 +1,33 @@
+<svg width="240" height="240" viewBox="0 0 960 960" xmlns="http://www.w3.org/2000/svg">
+  <!-- 渐变定义 -->
+  <defs>
+    <!-- 左侧色块渐变：蓝→紫→玫红 -->
+    <linearGradient id="gradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2090e8"/>
+      <stop offset="50%" stop-color="#9038b8"/>
+      <stop offset="100%" stop-color="#f03878"/>
+    </linearGradient>
+    <!-- 右上色块渐变：橙→红 -->
+    <linearGradient id="gradTopRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffaa22"/>
+      <stop offset="100%" stop-color="#f84840"/>
+    </linearGradient>
+    <!-- 右下色块渐变：玫红→紫→深蓝 -->
+    <linearGradient id="gradBottomRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f03878"/>
+      <stop offset="50%" stop-color="#7030b0"/>
+      <stop offset="100%" stop-color="#301070"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景矩形已删除，保留透明背景 -->
+
+  <!-- V形左半块 -->
+  <path d="M85 170 Q90 160 110 160 L340 160 Q370 162 395 190 L485 420 Q480 440 460 445 L360 400 Q340 395 325 415 L240 505 L80 200 Q75 180 85 170 Z" fill="url(#gradLeft)"/>
+
+  <!-- V右上橙色块 -->
+  <path d="M870 160 Q890 160 905 175 L810 420 Q795 435 775 430 L660 270 Q645 260 630 270 L490 410 L495 190 Q520 162 550 160 L870 160 Z" fill="url(#gradTopRight)"/>
+
+  <!-- V右下主色块 -->
+  <path d="M242 508 L328 418 Q342 396 362 402 L480 740 Q495 830 480 845 Q460 860 420 860 L540 860 Q580 860 600 845 Q615 830 630 740 L800 432 Q790 410 770 400 L665 380 Q645 375 630 395 L500 620 L242 508 Z" fill="url(#gradBottomRight)"/>
+</svg>
