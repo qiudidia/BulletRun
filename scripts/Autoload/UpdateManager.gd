@@ -45,7 +45,7 @@ func check_for_updates() -> void:
 	http_request.request(url, headers)
 
 
-func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	"""处理GitHub API响应"""
 	is_checking = false
 	
@@ -145,7 +145,7 @@ func _get_current_version() -> String:
 	return "v0.0.0"
 
 
-func _show_update_notification(latest: String, current: String, url: String, changelog: String) -> void:
+func _show_update_notification(latest: String, current: String, url: String, _changelog: String) -> void:
 	"""显示更新提示UI"""
 	# 创建提示面板
 	var panel: PanelContainer = PanelContainer.new()
