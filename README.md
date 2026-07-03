@@ -86,7 +86,8 @@
 ## 🙏 致谢
 
 - 游戏引擎：[Godot Engine](https://godotengine.org)
-- 音效：自制 + 开源资源
+- 音效：爱给网开源资源 sounddino
+- 测试人员：xiaoluo
 
 ---
 
