@@ -7,8 +7,8 @@ signal update_available(latest_version: String, current_version: String, downloa
 signal update_not_available()
 signal check_failed(reason: String)
 
-@export var github_user: String = "你的用户名"  # ⚠️ 替换为你的GitHub用户名
-@export var github_repo: String = "BulletRun"     # ⚠️ 替换为你的仓库名
+@export var github_user: String = "qiudidia"
+@export var github_repo: String = "BulletRun"
 @export var check_on_startup: bool = true        # 启动时自动检查
 @export var skip_version: String = ""             # 跳过此版本的更新提示
 
