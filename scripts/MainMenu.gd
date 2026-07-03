@@ -856,7 +856,7 @@ func _create_version_label() -> void:
 	"""在右下角显示版本号"""
 	var version_label: Label = Label.new()
 	version_label.name = "VersionLabel"
-	version_label.text = "v" + _get_version()
+	version_label.text = _get_version()
 	version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	version_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	version_label.add_theme_font_size_override("font_size", 14)
