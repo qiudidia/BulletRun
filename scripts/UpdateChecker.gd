@@ -30,7 +30,7 @@ func _ready() -> void:
 
 
 func check_for_updates() -> void:
-	"""检查更新"""
+	# 检查更新
 	var url: String = "https://api.github.com/repos/%s/%s/releases/latest" % [github_user, github_repo]
 	
 	# 设置User-Agent（GitHub API要求）
@@ -40,7 +40,7 @@ func check_for_updates() -> void:
 
 
 func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
-	"""处理GitHub API响应"""
+	# 处理GitHub API响应
 	if result != HTTPRequest.RESULT_SUCCESS:
 		update_check_failed.emit("网络请求失败")
 		return
@@ -83,10 +83,8 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 
 
 func _compare_versions(v1: String, v2: String) -> int:
-	"""
-	比较版本号
-	返回: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
-	"""
+	# 比较版本号
+	# 返回: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
 	# 移除'v'前缀
 	v1 = v1.lstrip("vV")
 	v2 = v2.lstrip("vV")
@@ -109,7 +107,7 @@ func _compare_versions(v1: String, v2: String) -> int:
 
 
 func _get_current_version() -> String:
-	"""读取本地版本文件"""
+	# 读取本地版本文件
 	var file: FileAccess = FileAccess.open("res://version.txt", FileAccess.READ)
 	if file:
 		return file.get_line().strip_edges()
@@ -117,7 +115,7 @@ func _get_current_version() -> String:
 
 
 func _exit_tree() -> void:
-	"""清理HTTP请求节点"""
+	# 清理HTTP请求节点
 	if http_request and is_instance_valid(http_request):
 		http_request.cancel_request()
 		http_request.queue_free()

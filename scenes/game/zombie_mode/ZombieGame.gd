@@ -213,7 +213,7 @@ func _create_console() -> void:
 
 
 func _create_boss_health_bar() -> void:
-	"""创建 BOSS 血条 UI（屏幕上方居中，默认隐藏）"""
+	# 创建 BOSS 血条 UI（屏幕上方居中，默认隐藏）
 	boss_health_bar = Control.new()
 	boss_health_bar.name = "BossHealthBar"
 	boss_health_bar.visible = false
@@ -902,7 +902,7 @@ func _on_exit_cancel() -> void:
 # 连杀系统（与 BotGame 对称）
 # =============================================================================
 func _create_kill_feed() -> void:
-	"""创建击杀通知容器"""
+	# 创建击杀通知容器
 	kill_feed_container = VBoxContainer.new()
 	kill_feed_container.name = "KillFeed"
 	kill_feed_container.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
@@ -914,7 +914,7 @@ func _create_kill_feed() -> void:
 
 
 func _create_minimap() -> void:
-	"""创建小地图"""
+	# 创建小地图
 	var minimap: Control = Control.new()
 	minimap.set_script(load("res://scripts/Minimap.gd"))
 	minimap.name = "Minimap"
@@ -983,7 +983,7 @@ func _show_kill_notification(victim_name: String, xp_amount: int) -> void:
 
 
 func _show_boss_kill_notification() -> void:
-	"""BOSS击杀通知（大字体，红色闪烁，战地5风格上滑淡出）"""
+	# BOSS击杀通知（大字体，红色闪烁，战地5风格上滑淡出）
 	if not is_instance_valid(kill_feed_container):
 		return
 	var notif: Label = Label.new()
@@ -1002,7 +1002,7 @@ func _show_boss_kill_notification() -> void:
 
 
 func _get_zombie_name(enemy: Node2D) -> String:
-	"""根据僵尸类型返回显示名称"""
+	# 根据僵尸类型返回显示名称
 	if enemy.get("is_boss") == true:
 		return GameSettings.t("boss_name")
 	if enemy.get("is_elite") == true:
@@ -1016,7 +1016,7 @@ func _get_zombie_name(enemy: Node2D) -> String:
 
 
 func _spawn_blood_vfx(pos: Vector2) -> void:
-	"""在指定位置生成血液喷溅效果，血迹留在地上约8秒"""
+	# 在指定位置生成血液喷溅效果，血迹留在地上约8秒
 	var scene: Node = get_tree().current_scene
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.randomize()
@@ -1086,7 +1086,7 @@ func _spawn_blood_vfx(pos: Vector2) -> void:
 # =============================================================================
 
 func _spawn_wave_chests() -> void:
-	"""每波开始时随机生成0-3个宝箱"""
+	# 每波开始时随机生成0-3个宝箱
 	if not chest_container:
 		return
 	
@@ -1101,7 +1101,7 @@ func _spawn_wave_chests() -> void:
 
 
 func _spawn_treasure_chest() -> void:
-	"""在地图上随机位置生成宝箱"""
+	# 在地图上随机位置生成宝箱
 	if not chest_container:
 		return
 	
@@ -1128,8 +1128,8 @@ func _spawn_treasure_chest() -> void:
 	chest.chest_collected.connect(_on_chest_collected)
 
 
-func _on_chest_collected(money_amount: int, _chest: Area2D) -> void:
-	"""处理宝箱拾取"""
+func _on_chest_collected(money_amount: int) -> void:
+	# 处理宝箱拾取
 	money += money_amount
 	GameSettings.set_value("game", "money", money)
 	_update_money_ui()
@@ -1137,7 +1137,7 @@ func _on_chest_collected(money_amount: int, _chest: Area2D) -> void:
 
 
 func _show_chest_notification(amount: int) -> void:
-	"""显示宝箱拾取通知"""
+	# 显示宝箱拾取通知
 	if not is_instance_valid(kill_feed_container):
 		return
 	

@@ -77,7 +77,7 @@ func _start_glow_animation() -> void:
 
 
 func _on_body_entered(body: Node) -> void:
-	"""玩家经过时拾取"""
+	# 玩家经过时拾取
 	if not is_active:
 		return
 	
@@ -87,7 +87,7 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _collect_chest(_player: Node) -> void:
-	"""拾取宝箱"""
+	# 拾取宝箱
 	is_active = false
 	
 	# 发送信号
@@ -103,12 +103,12 @@ func _collect_chest(_player: Node) -> void:
 
 
 func _on_collect_animation_done() -> void:
-	"""拾取动画完成后移除宝箱"""
+	# 拾取动画完成后移除宝箱
 	queue_free()
 
 
 func _reset_chest() -> void:
-	"""重置宝箱状态（重新刷新）"""
+	# 重置宝箱状态（重新刷新）
 	is_active = true
 	visible = true
 	var sprite: ColorRect = get_node_or_null("ChestSprite")
@@ -121,7 +121,7 @@ func _reset_chest() -> void:
 
 
 func set_money_amount(amount: int) -> void:
-	"""设置宝箱金钱数量"""
+	# 设置宝箱金钱数量
 	money_amount = amount
 	var label: Label = get_node_or_null("MoneyLabel")
 	if label:
@@ -129,5 +129,5 @@ func set_money_amount(amount: int) -> void:
 
 
 func set_respawn_time(time: float) -> void:
-	"""设置刷新时间"""
+	# 设置刷新时间
 	respawn_time = time

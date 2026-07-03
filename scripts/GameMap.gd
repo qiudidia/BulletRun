@@ -26,7 +26,7 @@ func _ready() -> void:
 
 
 func _spawn_barrels() -> void:
-	"""在地图随机位置生成爆炸桶，避开掩体和商店"""
+	# 在地图随机位置生成爆炸桶，避开掩体和商店
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.randomize()
 	var half: Vector2 = map_size * 0.5

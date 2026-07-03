@@ -662,7 +662,7 @@ func _sync_wave_info(wave: int, remaining: int) -> void:
 
 
 func _spawn_wave_enemies(normal_count: int, elite_count: int, boss_count: int) -> void:
-	"""房主调用：生成僵尸并同步位置到客户端"""
+	# 房主调用：生成僵尸并同步位置到客户端
 	# 所有客户端都执行此函数，但只在自己的树上生成僵尸
 	# PackedFloat64Array 格式：[x1, y1, type1, x2, y2, type2, ...] 
 	# type: 0-3=普通品种, 10=精英, 20=BOSS
@@ -719,7 +719,7 @@ func _spawn_wave_enemies(normal_count: int, elite_count: int, boss_count: int) -
 
 
 func _get_valid_spawn_pos(min_pos: Vector2, max_pos: Vector2) -> Vector2:
-	"""生成一个远离本地玩家的有效出生位置"""
+	# 生成一个远离本地玩家的有效出生位置
 	for attempt in range(20):
 		var pos: Vector2 = Vector2(randf_range(min_pos.x, max_pos.x), randf_range(min_pos.y, max_pos.y))
 		if local_player and pos.distance_to(local_player.global_position) > 250.0:
@@ -728,7 +728,7 @@ func _get_valid_spawn_pos(min_pos: Vector2, max_pos: Vector2) -> Vector2:
 
 
 func _spawn_wave_from_data(spawn_data: PackedFloat64Array) -> void:
-	"""根据位置数据生成僵尸（房主和客户端共用）"""
+	# 根据位置数据生成僵尸（房主和客户端共用）
 	for i in range(0, spawn_data.size(), 3):
 		var pos: Vector2 = Vector2(spawn_data[i], spawn_data[i + 1])
 		var enemy_type: int = int(spawn_data[i + 2])
@@ -744,7 +744,7 @@ func _spawn_wave_from_data(spawn_data: PackedFloat64Array) -> void:
 
 
 func _configure_enemy_at(enemy: CharacterBody2D, pos: Vector2, elite: bool, boss: bool, variant: int = 0) -> void:
-	"""在指定位置配置僵尸（使用固定位置，不再随机）"""
+	# 在指定位置配置僵尸（使用固定位置，不再随机）
 	enemy.global_position = pos
 
 	if enemy.has_method("set"):
@@ -841,8 +841,8 @@ func _on_enemy_died(_enemy: Node2D, killed_by: Node = null) -> void:
 		if _enemy.get("is_boss") != true:
 			var zombie_name: String = _get_zombie_name(_enemy)
 			_show_kill_notification(zombie_name, xp_gain)
-		# 清道夫 Perk：击杀掉落弹药补给包
-		if local_player.perks[0] == 1:
+		# 清道夫 Perk：只有本地玩家击杀且拥有该特长时才掉落弹药包
+		if killed_by == local_player and local_player.perks[0] == 1:
 			local_player._spawn_ammo_pack(_enemy.global_position)
 	_update_enemies_ui()
 
@@ -1085,7 +1085,7 @@ func _show_kill_notification(victim_name: String, xp_amount: int) -> void:
 
 
 func _show_boss_kill_notification() -> void:
-	"""BOSS击杀通知（大字体，红色闪烁，战地5风格上滑淡出）"""
+	# BOSS击杀通知（大字体，红色闪烁，战地5风格上滑淡出）
 	if not is_instance_valid(kill_feed_container):
 		return
 	var notif: Label = Label.new()
@@ -1546,7 +1546,7 @@ func _on_exit_cancel() -> void:
 
 
 func _get_zombie_name(enemy: Node2D) -> String:
-	"""根据僵尸类型返回显示名称"""
+	# 根据僵尸类型返回显示名称
 	if enemy.get('is_boss') == true:
 		return GameSettings.t('boss_name')
 	if enemy.get('is_elite') == true:
@@ -1760,7 +1760,7 @@ func _remove_teammate_entry(peer_id: int) -> void:
 # =============================================================================
 @rpc("authority", "call_remote", "reliable")
 func _rpc_spawn_wave(spawn_data: PackedFloat64Array) -> void:
-	"""客户端收到：用房主的精确位置生成僵尸"""
+	# 客户端收到：用房主的精确位置生成僵尸
 	if NetworkManager.is_host:
 		return  # 房主自己已经生成了
 	# 先清除旧僵尸
@@ -1797,14 +1797,14 @@ func _show_exit_notify(player_name: String) -> void:
 # 宝箱系统（联机同步）
 # =============================================================================
 func _create_chest_system() -> void:
-	"""创建宝箱容器"""
+	# 创建宝箱容器
 	chest_container = Node2D.new()
 	chest_container.name = "Chests"
 	add_child(chest_container)
 
 
 func _spawn_wave_chests() -> void:
-	"""每波开始时房主随机生成1~3个宝箱并同步"""
+	# 每波开始时房主随机生成1~3个宝箱并同步
 	if not chest_container:
 		return
 	if not NetworkManager.is_host:
@@ -1824,7 +1824,7 @@ func _spawn_wave_chests() -> void:
 
 
 func _spawn_chest() -> void:
-	"""生成单个宝箱（房主调用）"""
+	# 生成单个宝箱（房主调用）
 	if not chest_container:
 		return
 	
@@ -1849,7 +1849,7 @@ func _spawn_chest() -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _sync_chest_spawn(px: float, py: float, money: int, respawn: float, cid: int) -> void:
-	"""客户端收到：生成宝箱"""
+	# 客户端收到：生成宝箱
 	if NetworkManager.is_host:
 		return  # 房主已经生成了
 	
@@ -1858,7 +1858,7 @@ func _sync_chest_spawn(px: float, py: float, money: int, respawn: float, cid: in
 
 
 func _do_spawn_chest(pos: Vector2, money: int, respawn: float, cid: int) -> void:
-	"""执行生成宝箱"""
+	# 执行生成宝箱
 	var chest: Area2D = Area2D.new()
 	chest.name = "Chest_%d" % cid
 	
@@ -1872,16 +1872,16 @@ func _do_spawn_chest(pos: Vector2, money: int, respawn: float, cid: int) -> void
 	chest.global_position = pos
 	
 	chest_container.add_child(chest)
-	chest.chest_collected.connect(_on_chest_collected.bind(cid))
+	chest.chest_collected.connect(_on_chest_collected)
 
 
 func _on_chest_collected(cid: int) -> void:
-	"""处理宝箱拾取（本地判定）"""
+	# 处理宝箱拾取（本地判定）
 	var chest: Node = chest_container.get_node_or_null("Chest_%d" % cid)
 	if not chest:
 		return
 	
-	var amount: int = chest.get("money_amount") if chest.has_method("get") else 50
+	var amount: int = chest.money_amount
 	money += amount
 	GameSettings.set_value("game", "money", money)
 	_update_money_ui()
@@ -1892,27 +1892,33 @@ func _on_chest_collected(cid: int) -> void:
 	if not NetworkManager.is_host:
 		_request_chest_remove.rpc_id(1, cid)
 	else:
+		# 房主本地也移除
+		chest.queue_free()
 		_sync_chest_remove.rpc(cid)
 
 
 @rpc("any_peer", "call_remote", "reliable")
 func _request_chest_remove(cid: int) -> void:
-	"""客户端请求移除宝箱，房主执行"""
+	# 客户端请求移除宝箱，房主执行
 	if not multiplayer.is_server():
 		return
+	# 房主本地也移除
+	var chest: Node = chest_container.get_node_or_null("Chest_%d" % cid)
+	if chest:
+		chest.queue_free()
 	_sync_chest_remove.rpc(cid)
 
 
 @rpc("authority", "call_remote", "reliable")
 func _sync_chest_remove(cid: int) -> void:
-	"""所有客户端移除宝箱"""
+	# 所有客户端移除宝箱
 	var chest: Node = chest_container.get_node_or_null("Chest_%d" % cid)
 	if chest:
 		chest.queue_free()
 
 
 func _show_chest_notification(amount: int) -> void:
-	"""显示宝箱拾取通知"""
+	# 显示宝箱拾取通知
 	if not is_instance_valid(kill_feed_container):
 		return
 	

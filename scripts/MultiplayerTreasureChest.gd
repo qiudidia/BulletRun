@@ -84,24 +84,20 @@ func _on_body_entered(body: Node) -> void:
 
 
 func _collect() -> void:
-	"""本地拾取"""
+	# 本地拾取
 	if not is_active:
 		return
 	
 	is_active = false
 	visible = false
 	
-	# 通知游戏控制器
+	# 通知游戏控制器（ZombieCoopGame._on_chest_collected 负责RPC同步移除）
 	chest_collected.emit(chest_id)
-	
-	# 通知房主同步移除
-	if multiplayer.has_multiplayer_peer() and not get_multiplayer_authority() == multiplayer.get_unique_id():
-		_notify_collected.rpc_id(1, chest_id)
 
 
 @rpc("any_peer", "call_remote", "reliable")
 func _notify_collected(cid: int) -> void:
-	"""客户端通知房主宝箱被拾取"""
+	# 客户端通知房主宝箱被拾取
 	if not get_tree().is_server():
 		return
 	if cid != chest_id:
@@ -113,7 +109,7 @@ func _notify_collected(cid: int) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _sync_remove(cid: int) -> void:
-	"""所有客户端移除宝箱"""
+	# 所有客户端移除宝箱
 	if cid != chest_id:
 		return
 	is_active = false
@@ -121,7 +117,7 @@ func _sync_remove(cid: int) -> void:
 
 
 func respawn() -> void:
-	"""刷新宝箱（房主调用）"""
+	# 刷新宝箱（房主调用）
 	is_active = true
 	visible = true
 	var sprite: ColorRect = get_node_or_null("Sprite")

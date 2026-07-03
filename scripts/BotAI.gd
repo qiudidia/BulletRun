@@ -210,7 +210,7 @@ func _find_player() -> void:
 		target_player = players[0]
 
 func _apply_difficulty() -> void:
-	"""从 GameSettings 读取难度并应用所有难度相关参数"""
+	# 从 GameSettings 读取难度并应用所有难度相关参数
 	difficulty = GameSettings.get_value("game", "bot_difficulty", 1)
 
 	match difficulty:
@@ -398,7 +398,7 @@ func _shoot_state() -> void:
 
 
 func _detect_incoming_bullets() -> Vector2:
-	"""检测附近飞向自己的玩家子弹，返回躲避方向"""
+	# 检测附近飞向自己的玩家子弹，返回躲避方向
 	var best_dodge: Vector2 = Vector2.ZERO
 	var min_dist: float = 999.0
 
@@ -439,7 +439,7 @@ func _detect_incoming_bullets() -> Vector2:
 
 
 func _retreat_state() -> void:
-	"""残血撤退：远离玩家并寻找障碍物"""
+	# 残血撤退：远离玩家并寻找障碍物
 	if not is_instance_valid(target_player):
 		velocity = Vector2.ZERO
 		return
@@ -472,7 +472,7 @@ func _cover_state() -> void:
 
 
 func _find_nearest_cover() -> Vector2:
-	"""寻找最近的障碍物，返回其远离玩家一侧的位置作为掩体"""
+	# 寻找最近的障碍物，返回其远离玩家一侧的位置作为掩体
 	if not is_instance_valid(target_player):
 		return Vector2.ZERO
 
@@ -505,7 +505,7 @@ func _find_nearest_cover() -> Vector2:
 
 
 func _find_static_bodies(node: Node, result: Array) -> void:
-	"""递归查找所有 StaticBody2D"""
+	# 递归查找所有 StaticBody2D
 	if node is StaticBody2D and node.name == "Obstacle":
 		result.append(node)
 	for child in node.get_children():
@@ -720,7 +720,7 @@ func take_damage(amount: int, source: Node = null) -> void:
 
 
 func _play_sfx(stream: AudioStream) -> void:
-	"""播放射击音效"""
+	# 播放射击音效
 	if stream:
 		var sfx: AudioStreamPlayer = AudioStreamPlayer.new()
 		sfx.stream = stream
@@ -951,7 +951,7 @@ func _switch_weapon(weapon: int) -> void:
 
 
 func _decide_weapon(dist: float) -> void:
-	"""根据距离和弹药量智能选择武器（受难度控制）"""
+	# 根据距离和弹药量智能选择武器（受难度控制）
 	# EASY模式不切换武器
 	if not _enable_weapon_switch:
 		return
@@ -991,7 +991,7 @@ func _die() -> void:
 
 
 func _throw_grenade() -> void:
-	"""投掷手榴弹"""
+	# 投掷手榴弹
 	if not is_instance_valid(target_player):
 		return
 

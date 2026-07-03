@@ -32,7 +32,7 @@ func _ready() -> void:
 
 
 func check_for_updates() -> void:
-	"""检查更新（可手动调用）"""
+	# 检查更新（可手动调用）
 	if is_checking:
 		return
 	
@@ -46,7 +46,7 @@ func check_for_updates() -> void:
 
 
 func _on_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
-	"""处理GitHub API响应"""
+	# 处理GitHub API响应
 	is_checking = false
 	
 	if result != HTTPRequest.RESULT_SUCCESS:
@@ -102,10 +102,8 @@ func _on_request_completed(result: int, response_code: int, _headers: PackedStri
 
 
 func _compare_versions(v1: String, v2: String) -> int:
-	"""
-	比较版本号
-	返回: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
-	"""
+	# 比较版本号
+	# 返回: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
 	v1 = v1.lstrip("vV")
 	v2 = v2.lstrip("vV")
 	
@@ -127,7 +125,7 @@ func _compare_versions(v1: String, v2: String) -> int:
 
 
 func _get_download_url(data: Dictionary) -> String:
-	"""获取下载URL"""
+	# 获取下载URL
 	var assets: Array = data.get("assets", [])
 	
 	if assets.size() > 0:
@@ -138,7 +136,7 @@ func _get_download_url(data: Dictionary) -> String:
 
 
 func _get_current_version() -> String:
-	"""读取本地版本文件"""
+	# 读取本地版本文件
 	var file: FileAccess = FileAccess.open("res://version.txt", FileAccess.READ)
 	if file:
 		return file.get_line().strip_edges()
@@ -146,7 +144,7 @@ func _get_current_version() -> String:
 
 
 func _show_update_notification(latest: String, current: String, url: String, _changelog: String) -> void:
-	"""显示更新提示UI"""
+	# 显示更新提示UI
 	# 创建提示面板
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "UpdateNotification"
@@ -235,24 +233,24 @@ func _show_update_notification(latest: String, current: String, url: String, _ch
 
 
 func _on_download_pressed(url: String) -> void:
-	"""打开下载链接"""
+	# 打开下载链接
 	print("[UpdateManager] 打开下载链接: %s" % url)
 	OS.shell_open(url)
 
 
 func _on_skip_pressed(version: String, panel: PanelContainer) -> void:
-	"""跳过此版本"""
+	# 跳过此版本
 	skip_version = version
 	panel.queue_free()
 	print("[UpdateManager] 跳过版本: %s" % version)
 
 
 func set_skip_version(version: String) -> void:
-	"""设置跳过版本（持久化）"""
+	# 设置跳过版本（持久化）
 	skip_version = version
 	# TODO: 保存到配置文件
 
 
 func get_current_version() -> String:
-	"""获取当前版本（供外部调用）"""
+	# 获取当前版本（供外部调用）
 	return current_version

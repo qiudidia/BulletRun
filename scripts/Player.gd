@@ -692,7 +692,7 @@ func take_damage(amount: int, is_explosion: bool = false) -> void:
 		_die()
 
 func screen_shake(intensity: float = 3.0, duration: float = 0.15) -> void:
-	"""触发屏幕震动（由游戏模式在击杀时调用）"""
+	# 触发屏幕震动（由游戏模式在击杀时调用）
 	if not camera:
 		return
 	_shake_intensity = intensity

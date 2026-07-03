@@ -115,7 +115,7 @@ func _ready() -> void:
 
 
 func _create_minimap() -> void:
-	"""创建小地图"""
+	# 创建小地图
 	var minimap: Control = Control.new()
 	minimap.set_script(load("res://scripts/Minimap.gd"))
 	minimap.name = "Minimap"
@@ -164,7 +164,7 @@ func _apply_loadout() -> void:
 
 
 func _create_difficulty_panel() -> void:
-	"""创建难度选择面板（游戏开始前弹出，4个按钮：简单/普通/中等/困难）"""
+	# 创建难度选择面板（游戏开始前弹出，4个按钮：简单/普通/中等/困难）
 	difficulty_panel = Control.new()
 	difficulty_panel.name = "DifficultyPanel"
 	difficulty_panel.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -222,7 +222,7 @@ func _show_difficulty_panel() -> void:
 
 
 func _on_difficulty_selected(diff_value: int) -> void:
-	"""选择难度后，保存到 GameSettings，隐藏面板，开始游戏"""
+	# 选择难度后，保存到 GameSettings，隐藏面板，开始游戏
 	difficulty_selected = true
 	GameSettings.set_value("game", "bot_difficulty", diff_value)
 
@@ -333,7 +333,7 @@ func _create_pause_menu() -> void:
 
 
 func _create_kill_feed() -> void:
-	"""创建击杀通知容器（屏幕正上方偏下位置）"""
+	# 创建击杀通知容器（屏幕正上方偏下位置）
 	kill_feed_container = VBoxContainer.new()
 	kill_feed_container.name = "KillFeed"
 	kill_feed_container.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
@@ -711,7 +711,7 @@ func _get_random_spawn_position() -> Vector2:
 
 
 func _assign_grenades_to_random_bots() -> void:
-	"""随机给1个活着的Bot手榴弹，其他的清空"""
+	# 随机给1个活着的Bot手榴弹，其他的清空
 	var living_bots: Array = []
 	for bot in bot_container.get_children():
 		if is_instance_valid(bot) and bot.has_method("take_damage"):
@@ -724,7 +724,7 @@ func _assign_grenades_to_random_bots() -> void:
 
 
 func _show_kill_notification(bot: Node2D) -> void:
-	"""显示击杀通知（战地5风格：正上方向下，上滑淡出）"""
+	# 显示击杀通知（战地5风格：正上方向下，上滑淡出）
 	if not is_instance_valid(kill_feed_container):
 		return
 
@@ -930,7 +930,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _spawn_blood_vfx(pos: Vector2) -> void:
-	"""在指定位置生成血液喷溅效果，血迹留在地上约8秒"""
+	# 在指定位置生成血液喷溅效果，血迹留在地上约8秒
 	var scene: Node = get_tree().current_scene
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.randomize()

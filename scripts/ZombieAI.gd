@@ -356,7 +356,7 @@ func _move_with_nav(custom_speed: float = -1.0) -> void:
 
 
 func _fallback_move(custom_speed: float = -1.0) -> void:
-	"""导航不可用时的直线追踪（保底逻辑）"""
+	# 导航不可用时的直线追踪（保底逻辑）
 	if not is_instance_valid(target_player):
 		velocity = Vector2.ZERO
 		return
@@ -433,7 +433,7 @@ func _create_eyes() -> void:
 
 
 func _create_cape() -> void:
-	"""BOSS 幽灵披风：暗色多边形，底边波浪形"""
+	# BOSS 幽灵披风：暗色多边形，底边波浪形
 	_cape_node = Polygon2D.new()
 	_cape_node.name = "Cape"
 	# 披风形状：上窄下宽，底边呈波浪状（幽灵尾巴感）
@@ -456,7 +456,7 @@ func _create_cape() -> void:
 
 
 func _create_hands() -> void:
-	"""僵尸双手：两支手臂平行向前伸直，末端有手"""
+	# 僵尸双手：两支手臂平行向前伸直，末端有手
 	_hands_pivot = Node2D.new()
 	_hands_pivot.name = "HandsPivot"
 	add_child(_hands_pivot)
@@ -557,7 +557,7 @@ func _die() -> void:
 	call_deferred("queue_free")
 
 func _trigger_bomber_explosion() -> void:
-	"""爆炸型僵尸死亡时触发范围爆炸"""
+	# 爆炸型僵尸死亡时触发范围爆炸
 	# 创建爆炸视觉效果
 	var explosion: ColorRect = ColorRect.new()
 	explosion.size = Vector2(BOMBER_EXPLOSION_RADIUS * 2, BOMBER_EXPLOSION_RADIUS * 2)

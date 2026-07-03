@@ -853,7 +853,7 @@ func _on_avatar_selected(id: int) -> void:
 # 版本显示
 # =============================================================================
 func _create_version_label() -> void:
-	"""在右下角显示版本号"""
+	# 在右下角显示版本号
 	var version_label: Label = Label.new()
 	version_label.name = "VersionLabel"
 	version_label.text = _get_version()
@@ -876,7 +876,7 @@ func _create_version_label() -> void:
 
 
 func _get_version() -> String:
-	"""读取version.txt获取版本号"""
+	# 读取version.txt获取版本号
 	var file: FileAccess = FileAccess.open("res://version.txt", FileAccess.READ)
 	if file:
 		return file.get_line().strip_edges()
