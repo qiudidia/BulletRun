@@ -16,7 +16,7 @@ var glow_tween: Tween = null
 func _ready() -> void:
 	# 设置碰撞（检测玩家）
 	collision_layer = 0
-	collision_mask = 1  # 假设玩家在层1
+	collision_mask = 2  # 玩家在layer 2
 	
 	# 创建碰撞形状
 	var col: CollisionShape2D = CollisionShape2D.new()
@@ -103,15 +103,8 @@ func _collect_chest(_player: Node) -> void:
 
 
 func _on_collect_animation_done() -> void:
-	"""拾取动画完成后，等待刷新时间然后重新激活"""
-	# 隐藏宝箱
-	visible = false
-	
-	# 等待刷新时间
-	await get_tree().create_timer(respawn_time).timeout
-	
-	# 重新激活
-	_reset_chest()
+	"""拾取动画完成后移除宝箱"""
+	queue_free()
 
 
 func _reset_chest() -> void:

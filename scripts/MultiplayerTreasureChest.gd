@@ -16,7 +16,7 @@ var is_active: bool = true
 func _ready() -> void:
 	# 设置碰撞
 	collision_layer = 0
-	collision_mask = 1  # 玩家层
+	collision_mask = 2  # 玩家在layer 2
 	
 	# 创建碰撞形状
 	var col: CollisionShape2D = CollisionShape2D.new()

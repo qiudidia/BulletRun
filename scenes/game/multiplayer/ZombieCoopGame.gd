@@ -52,6 +52,10 @@ var settings_instance: Control = null
 
 # 商店
 var shop_open: bool = false
+# 自动下一波倒计时（房主15秒不点继续则自动开始）
+var auto_wave_timer: Timer = null
+var auto_wave_countdown: int = 0
+const AUTO_NEXT_WAVE_DELAY: int = 15
 
 # 金钱
 var money: int = 0
@@ -124,9 +128,7 @@ var spawn_points: Array = [
 
 # 宝箱系统
 var chest_container: Node2D = null
-var chest_count: int = 5
-var chest_spawn_timer: float = 0.0
-const CHEST_SPAWN_INTERVAL: float = 15.0
+const MAX_CHESTS_PER_WAVE: int = 3  # 每波最多3个宝箱
 var next_chest_id: int = 0
 
 # 加载握手
@@ -245,6 +247,14 @@ func _ready() -> void:
 	_create_console()
 	_create_teammate_panel()
 	_create_chest_system()
+
+	# 自动下一波倒计时Timer（暂停时也能运行）
+	auto_wave_timer = Timer.new()
+	auto_wave_timer.name = "AutoWaveTimer"
+	auto_wave_timer.wait_time = 1.0
+	auto_wave_timer.process_mode = Node.PROCESS_MODE_ALWAYS
+	auto_wave_timer.timeout.connect(_on_auto_wave_tick)
+	add_child(auto_wave_timer)
 
 	# 连接网络事件
 	NetworkManager.player_joined.connect(_on_player_joined)
@@ -637,6 +647,7 @@ func start_next_wave() -> void:
 	_update_wave_ui()
 	wave_started.emit(current_wave)
 	_spawn_wave_enemies(normal_count, elite_count, boss_count)
+	_spawn_wave_chests()
 	_show_wave_announcement()
 
 	# 同步波次信息到客户端
@@ -883,6 +894,11 @@ func _open_shop() -> void:
 	# 通知客户端商店打开（只发波次奖励金额，不发房主总金钱）
 	if NetworkManager.is_host:
 		_sync_shop_open.rpc(wave_reward)
+	# 启动自动下一波倒计时（房主和客户端都启动，用于显示）
+	auto_wave_countdown = AUTO_NEXT_WAVE_DELAY
+	if auto_wave_timer:
+		auto_wave_timer.start()
+	_update_continue_button_countdown()
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -895,12 +911,21 @@ func _sync_shop_open(reward: int) -> void:
 	if shop_panel:
 		shop_panel.visible = true
 	get_tree().paused = true
+	# 客户端也启动倒计时显示
+	auto_wave_countdown = AUTO_NEXT_WAVE_DELAY
+	if auto_wave_timer:
+		auto_wave_timer.start()
+	_update_continue_button_countdown()
 
 
 func _close_shop() -> void:
 	# 只有房主能关闭商店并开始下一波，客户端等待房主同步
 	if not NetworkManager.is_host:
 		return
+	# 停止自动倒计时
+	if auto_wave_timer:
+		auto_wave_timer.stop()
+	auto_wave_countdown = 0
 	shop_open = false
 	if shop_panel:
 		shop_panel.visible = false
@@ -912,6 +937,9 @@ func _close_shop() -> void:
 @rpc("authority", "call_remote", "reliable")
 func _sync_shop_close() -> void:
 	# 客户端收到商店关闭通知
+	if auto_wave_timer:
+		auto_wave_timer.stop()
+	auto_wave_countdown = 0
 	shop_open = false
 	if shop_panel:
 		shop_panel.visible = false
@@ -919,6 +947,39 @@ func _sync_shop_close() -> void:
 
 
 # =============================================================================
+# 自动下一波倒计时
+# =============================================================================
+func _on_auto_wave_tick() -> void:
+	if not shop_open:
+		if auto_wave_timer:
+			auto_wave_timer.stop()
+		return
+	auto_wave_countdown -= 1
+	if auto_wave_countdown <= 0:
+		if auto_wave_timer:
+			auto_wave_timer.stop()
+		auto_wave_countdown = 0
+		if NetworkManager.is_host:
+			_close_shop()
+	else:
+		_update_continue_button_countdown()
+
+
+func _update_continue_button_countdown() -> void:
+	if not continue_btn:
+		return
+	if auto_wave_countdown > 0:
+		if NetworkManager.is_host:
+			continue_btn.text = GameSettings.t("next_wave") + " (%ds)" % auto_wave_countdown
+		else:
+			continue_btn.text = GameSettings.t("waiting_for_host") + " (%ds)" % auto_wave_countdown
+	else:
+		if NetworkManager.is_host:
+			continue_btn.text = GameSettings.t("next_wave")
+		else:
+			continue_btn.text = GameSettings.t("waiting_for_host")
+
+
 # BOSS血条
 # =============================================================================
 func _create_boss_health_bar() -> void:
@@ -1262,13 +1323,22 @@ func _update_shop_buttons() -> void:
 			mg_btn.text = GameSettings.t("buy_machinegun", [mg_price])
 			mg_btn.disabled = money < mg_price
 	# Continue 按钮：房主显示"下一波"，客户端显示"等待房主"并禁用
+	# 倒计时时显示剩余秒数
 	if continue_btn:
-		if NetworkManager.is_host:
-			continue_btn.text = GameSettings.t("next_wave")
-			continue_btn.disabled = false
+		if auto_wave_countdown > 0:
+			if NetworkManager.is_host:
+				continue_btn.text = GameSettings.t("next_wave") + " (%ds)" % auto_wave_countdown
+				continue_btn.disabled = false
+			else:
+				continue_btn.text = GameSettings.t("waiting_for_host") + " (%ds)" % auto_wave_countdown
+				continue_btn.disabled = true
 		else:
-			continue_btn.text = GameSettings.t("waiting_for_host")
-			continue_btn.disabled = true
+			if NetworkManager.is_host:
+				continue_btn.text = GameSettings.t("next_wave")
+				continue_btn.disabled = false
+			else:
+				continue_btn.text = GameSettings.t("waiting_for_host")
+				continue_btn.disabled = true
 
 
 func _update_money_ui() -> void:
@@ -1442,7 +1512,7 @@ func _apply_language() -> void:
 	if shop_title_label:
 		shop_title_label.text = GameSettings.t("shop_title")
 	if continue_btn:
-		continue_btn.text = GameSettings.t("next_wave")
+		_update_continue_button_countdown()
 	if boss_name_label:
 		boss_name_label.text = GameSettings.t("boss_name")
 	if pause_menu:
@@ -1727,19 +1797,29 @@ func _show_exit_notify(player_name: String) -> void:
 # 宝箱系统（联机同步）
 # =============================================================================
 func _create_chest_system() -> void:
-	"""创建宝箱容器并初始生成宝箱"""
+	"""创建宝箱容器"""
 	chest_container = Node2D.new()
 	chest_container.name = "Chests"
 	add_child(chest_container)
+
+
+func _spawn_wave_chests() -> void:
+	"""每波开始时房主随机生成1~3个宝箱并同步"""
+	if not chest_container:
+		return
+	if not NetworkManager.is_host:
+		return
 	
-	# 房主负责生成初始宝箱
-	if NetworkManager.is_host:
-		call_deferred("_spawn_initial_chests")
-
-
-func _spawn_initial_chests() -> void:
-	"""初始生成宝箱（房主调用）"""
-	for i in range(chest_count):
+	# 先清除上一波残留的宝箱
+	for child in chest_container.get_children():
+		var cid: int = child.get("chest_id") if child.has_method("get") else -1
+		child.queue_free()
+		if cid >= 0:
+			_sync_chest_remove.rpc(cid)
+	
+	# 随机生成 1~3 个宝箱
+	var count: int = randi_range(1, MAX_CHESTS_PER_WAVE)
+	for i in range(count):
 		_spawn_chest()
 
 
@@ -1752,7 +1832,6 @@ func _spawn_chest() -> void:
 	next_chest_id += 1
 	
 	var money: int = 50 + randi() % 100  # 50-150
-	var respawn: float = 20.0 + randf() * 20.0  # 20-40秒
 	
 	# 随机位置
 	var bounds: Rect2 = _get_spawn_bounds()
@@ -1762,10 +1841,10 @@ func _spawn_chest() -> void:
 	)
 	
 	# 房主本地生成
-	_do_spawn_chest(pos, money, respawn, cid)
+	_do_spawn_chest(pos, money, 0.0, cid)
 	
 	# 同步到客户端
-	_sync_chest_spawn.rpc(pos.x, pos.y, money, respawn, cid)
+	_sync_chest_spawn.rpc(pos.x, pos.y, money, 0.0, cid)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -1798,7 +1877,6 @@ func _do_spawn_chest(pos: Vector2, money: int, respawn: float, cid: int) -> void
 
 func _on_chest_collected(cid: int) -> void:
 	"""处理宝箱拾取（本地判定）"""
-	# 本地玩家获得金钱
 	var chest: Node = chest_container.get_node_or_null("Chest_%d" % cid)
 	if not chest:
 		return
@@ -1808,18 +1886,13 @@ func _on_chest_collected(cid: int) -> void:
 	GameSettings.set_value("game", "money", money)
 	_update_money_ui()
 	
-	# 显示拾取通知
 	_show_chest_notification(amount)
 	
 	# 通知房主同步移除宝箱
 	if not NetworkManager.is_host:
 		_request_chest_remove.rpc_id(1, cid)
 	else:
-		# 房主直接同步移除
 		_sync_chest_remove.rpc(cid)
-		
-		# 启动刷新计时器
-		_start_chest_respawn_timer(cid)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -1827,12 +1900,7 @@ func _request_chest_remove(cid: int) -> void:
 	"""客户端请求移除宝箱，房主执行"""
 	if not multiplayer.is_server():
 		return
-	
-	# 房主同步移除到所有客户端
 	_sync_chest_remove.rpc(cid)
-	
-	# 启动刷新计时器
-	_start_chest_respawn_timer(cid)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -1841,60 +1909,6 @@ func _sync_chest_remove(cid: int) -> void:
 	var chest: Node = chest_container.get_node_or_null("Chest_%d" % cid)
 	if chest:
 		chest.queue_free()
-
-
-func _start_chest_respawn_timer(cid: int) -> void:
-	"""房主启动宝箱刷新计时器（使用Timer节点）"""
-	# 获取刷新时间
-	var respawn_time: float = 30.0
-	
-	# 创建计时器
-	var timer: Timer = Timer.new()
-	timer.name = "ChestTimer_%d" % cid
-	timer.wait_time = respawn_time
-	timer.one_shot = true
-	timer.timeout.connect(func(): _on_chest_timer_timeout(cid))
-	add_child(timer)
-	timer.start()
-
-
-func _on_chest_timer_timeout(cid: int) -> void:
-	"""宝箱刷新计时器到期"""
-	_respawn_chest(cid)
-	
-	# 删除计时器
-	var timer: Timer = get_node_or_null("ChestTimer_%d" % cid)
-	if timer:
-		timer.queue_free()
-
-
-func _respawn_chest(cid: int) -> void:
-	"""刷新宝箱（房主调用）"""
-	var money: int = 50 + randi() % 100
-	var respawn: float = 20.0 + randf() * 20.0
-	
-	# 随机位置
-	var bounds: Rect2 = _get_spawn_bounds()
-	var pos: Vector2 = Vector2(
-		randf_range(bounds.position.x, bounds.end.x),
-		randf_range(bounds.position.y, bounds.end.y)
-	)
-	
-	# 房主本地生成
-	_do_spawn_chest(pos, money, respawn, cid)
-	
-	# 同步到客户端
-	_sync_chest_respawn.rpc(pos.x, pos.y, money, respawn, cid)
-
-
-@rpc("authority", "call_remote", "reliable")
-func _sync_chest_respawn(px: float, py: float, money: int, respawn: float, cid: int) -> void:
-	"""客户端收到：刷新宝箱"""
-	if NetworkManager.is_host:
-		return
-	
-	var pos: Vector2 = Vector2(px, py)
-	_do_spawn_chest(pos, money, respawn, cid)
 
 
 func _show_chest_notification(amount: int) -> void:

@@ -83,9 +83,7 @@ var console: CanvasLayer = null
 
 # 宝箱系统
 var chest_container: Node2D = null
-var chest_count: int = 5  # 地图上同时存在的宝箱数量
-var chest_spawn_timer: float = 0.0
-const CHEST_SPAWN_INTERVAL: float = 15.0  # 每15秒检查一次是否需要生成新宝箱
+const MAX_CHESTS_PER_WAVE: int = 3  # 每波最多3个宝箱
 
 # 击杀通知容器
 var kill_feed_container: VBoxContainer = null
@@ -202,9 +200,6 @@ func _ready() -> void:
 	chest_container = Node2D.new()
 	chest_container.name = "Chests"
 	add_child(chest_container)
-	
-	# 初始生成宝箱
-	_spawn_initial_chests()
 
 	start_next_wave()
 
@@ -608,14 +603,6 @@ func _on_mg_buy() -> void:
 func _process(_delta: float) -> void:
 	if wave_in_progress:
 		_check_wave_complete()
-	
-	# 宝箱生成检查
-	_chest_spawn_timer += _delta
-	if _chest_spawn_timer >= CHEST_SPAWN_INTERVAL:
-		_chest_spawn_timer = 0.0
-		# 如果当前宝箱数量少于目标，生成新的
-		if chest_container and chest_container.get_child_count() < chest_count:
-			_spawn_treasure_chest()
 
 
 func start_next_wave() -> void:
@@ -640,6 +627,7 @@ func start_next_wave() -> void:
 	_update_wave_ui()
 	wave_started.emit(current_wave)
 	_spawn_wave_enemies(normal_count, elite_count, boss_count)
+	_spawn_wave_chests()
 	_show_wave_announcement()
 
 
@@ -1096,9 +1084,19 @@ func _spawn_blood_vfx(pos: Vector2) -> void:
 # =============================================================================
 # 宝箱系统
 # =============================================================================
-func _spawn_initial_chests() -> void:
-	"""初始生成宝箱"""
-	for i in range(chest_count):
+
+func _spawn_wave_chests() -> void:
+	"""每波开始时随机生成0-3个宝箱"""
+	if not chest_container:
+		return
+	
+	# 先清除上一波残留的宝箱
+	for child in chest_container.get_children():
+		child.queue_free()
+	
+	# 随机生成 1~3 个宝箱
+	var count: int = randi_range(1, MAX_CHESTS_PER_WAVE)
+	for i in range(count):
 		_spawn_treasure_chest()
 
 
@@ -1107,14 +1105,13 @@ func _spawn_treasure_chest() -> void:
 	if not chest_container:
 		return
 	
-	var chest_scene: PackedScene = PackedScene.new()
 	var chest_script: GDScript = load("res://scripts/TreasureChest.gd")
 	
 	var chest: Area2D = Area2D.new()
 	chest.name = "TreasureChest"
 	chest.set_script(chest_script)
 	chest.money_amount = 50 + randi() % 100  # 50-150 随机金钱
-	chest.respawn_time = 20.0 + randf() * 20.0  # 20-40秒刷新
+	chest.respawn_time = 0.0  # 不自动刷新，每波重新生成
 	
 	# 随机位置（避开玩家初始位置）
 	var bounds: Rect2 = _get_spawn_bounds()
@@ -1128,20 +1125,15 @@ func _spawn_treasure_chest() -> void:
 	chest.global_position = pos
 	
 	chest_container.add_child(chest)
-	chest.chest_collected.connect(_on_chest_collected.bind(chest))
+	chest.chest_collected.connect(_on_chest_collected)
 
 
-func _on_chest_collected(money_amount: int, chest: Area2D) -> void:
+func _on_chest_collected(money_amount: int, _chest: Area2D) -> void:
 	"""处理宝箱拾取"""
 	money += money_amount
 	GameSettings.set_value("game", "money", money)
 	_update_money_ui()
-	
-	# 显示拾取通知
 	_show_chest_notification(money_amount)
-	
-	# 3秒后重新生成宝箱（由 TreaureChest 自己处理刷新）
-	# 这里不需要额外处理，TreasureChest 脚本会自动刷新
 
 
 func _show_chest_notification(amount: int) -> void:
@@ -1162,4 +1154,3 @@ func _show_chest_notification(amount: int) -> void:
 	tween.tween_property(notif, "position:y", notif.position.y - 50, 2.0)
 	tween.parallel().tween_property(notif, "modulate:a", 0.0, 2.0)
 	tween.tween_callback(func(): notif.queue_free())
-
