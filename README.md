@@ -44,21 +44,20 @@
 ## 🚀 下载与安装
 
 ### 方法一：使用启动器（推荐）
-1. 下载 `BulletRun-Launcher.zip`
-2. 解压后运行 `Launcher.exe`
+1. 下载 `BulletRun-vX.X.X-win64.zip`
+2. 解压后双击运行 `Launcher.bat`
 3. 启动器会自动检查更新并下载最新版本
 
-### 方法二：手动下载
-1. 前往 [Releases](https://github.com/你的用户名/BulletRun/releases) 页面
-2. 下载最新版本的 `BulletRun-vX.X.X-win64.zip`
-3. 解压后运行 `BulletRun.exe`
+### 方法二：手动启动
+1. 下载 `BulletRun-vX.X.X-win64.zip`
+2. 解压后直接运行 `BulletRun.exe`
 
 ## 🔧 从源码构建
 
 1. 安装 [Godot 4.6](https://godotengine.org/download)
 2. 克隆本仓库：
    ```bash
-   git clone https://github.com/你的用户名/BulletRun.git
+   git clone https://github.com/qiudidia/BulletRun.git
    ```
 3. 用Godot打开项目文件夹
 4. 点击右上角 **导出** 按钮，选择平台并导出
