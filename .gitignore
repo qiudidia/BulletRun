@@ -12,6 +12,7 @@
 *.pck
 *.zip
 *.app/
+*.sh
 
 # Debug
 .mono/

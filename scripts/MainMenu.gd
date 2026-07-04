@@ -876,8 +876,5 @@ func _create_version_label() -> void:
 
 
 func _get_version() -> String:
-	# 读取version.txt获取版本号
-	var file: FileAccess = FileAccess.open("res://version.txt", FileAccess.READ)
-	if file:
-		return file.get_line().strip_edges()
-	return "unknown"
+	# 从UpdateManager获取版本号（已含后备方案）
+	return UpdateManager.get_current_version()
