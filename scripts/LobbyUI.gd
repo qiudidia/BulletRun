@@ -847,8 +847,8 @@ func _update_start_button() -> void:
 			else:
 				start_btn.text = GameSettings.t("same_team_warning")
 			return
-	# 乱斗/僵尸模式：颜色冲突优先提示
-	if NetworkManager.room_mode == NetworkManager.GameMode.BRAWL or NetworkManager.room_mode == NetworkManager.GameMode.ZOMBIE:
+	# 乱斗模式：颜色冲突优先提示
+	if NetworkManager.room_mode == NetworkManager.GameMode.BRAWL:
 		if _has_color_conflict():
 			start_btn.disabled = true
 			start_btn.text = GameSettings.t("color_conflict_warning")
@@ -882,13 +882,11 @@ func _update_start_button() -> void:
 
 
 func _has_color_conflict() -> bool:
-	# 检查是否有两人选了相同颜色
+	# 检查是否有两人选了相同颜色（仅乱斗模式需要）
 	var used_colors: Array = []
 	var color_dict: Dictionary = {}
 	if NetworkManager.room_mode == NetworkManager.GameMode.BRAWL:
 		color_dict = NetworkManager.brawl_colors
-	elif NetworkManager.room_mode == NetworkManager.GameMode.ZOMBIE:
-		color_dict = NetworkManager.zombie_colors
 	else:
 		return false
 

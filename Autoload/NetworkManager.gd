@@ -436,8 +436,8 @@ func get_player_color(peer_id: int) -> Color:
 		var color_name: String = brawl_colors.get(peer_id, "blue")
 		return TEAM_COLORS[color_name]
 	elif room_mode == GameMode.ZOMBIE:
-		var color_name: String = zombie_colors.get(peer_id, "blue")
-		return TEAM_COLORS[color_name]
+		# 僵尸合作模式：所有玩家同一颜色（队友），用名字标签区分
+		return Color(0.2, 0.7, 0.3, 1)  # 绿色 = 幸存者
 	else:
 		return Color(0.2, 0.4, 0.9, 1)
 

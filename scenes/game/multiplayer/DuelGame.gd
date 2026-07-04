@@ -281,6 +281,7 @@ func _on_player_left(peer_id: int) -> void:
 
 func _on_host_disconnected() -> void:
 	# 房主断开，回到主菜单
+	get_tree().paused = false
 	get_tree().change_scene_to_file("res://scenes/menu/main_menu.tscn")
 
 
