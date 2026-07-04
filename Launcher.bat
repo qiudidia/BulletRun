@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 title Bullet Run Launcher
 
 where python >nul 2>nul
@@ -16,7 +15,7 @@ if %errorlevel% equ 0 (
     exit /b
 )
 
-echo 错误: 未找到 Python，请先安装 Python 3.x
-echo 下载地址: https://www.python.org/downloads/
-echo 安装时请勾选 "Add Python to PATH"
+echo ERROR: Python not found. Please install Python 3.x first.
+echo Download: https://www.python.org/downloads/
+echo Make sure to check "Add Python to PATH" during installation.
 pause
