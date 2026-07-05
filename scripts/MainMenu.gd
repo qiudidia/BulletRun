@@ -4,11 +4,11 @@ extends Control
 # 动态背景 + 发光按钮 + 立体卡片 + 动画效果
 # =============================================================================
 
-@onready var start_btn: Button = null
-@onready var settings_btn: Button = null
-@onready var about_btn: Button = null
-@onready var loadout_btn: Button = null
-@onready var quit_btn: Button = null
+var start_btn: Button = null
+var settings_btn: Button = null
+var about_btn: Button = null
+var loadout_btn: Button = null
+var quit_btn: Button = null
 
 var settings_instance: Control = null
 var about_screen: Control = null
@@ -102,8 +102,8 @@ func _create_main_menu() -> void:
 	sep_hbox.add_child(left_line)
 	
 	var diamond: Label = Label.new()
-	diamond.text = "◆"
-	diamond.add_theme_font_size_override("font_size", 16)
+	diamond.text = ">>"
+	diamond.add_theme_font_size_override("font_size", 14)
 	diamond.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3, 1.0))
 	sep_hbox.add_child(diamond)
 	
@@ -119,37 +119,36 @@ func _create_main_menu() -> void:
 	btn_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	main_container.add_child(btn_container)
 	
-	var buttons_data: Array = [
-		{"name": "StartBtn", "text_key": "start_game", "icon": "▶", "color": Color(0.2, 0.8, 0.5, 1.0), "callback": _on_start_pressed},
-		{"name": "LoadoutBtn", "text_key": "loadout", "icon": "⚔", "color": Color(0.9, 0.6, 0.2, 1.0), "callback": _on_loadout_pressed},
-		{"name": "SettingsBtn", "text_key": "settings", "icon": "⚙", "color": Color(0.3, 0.6, 1.0, 1.0), "callback": _on_settings_pressed},
-		{"name": "AboutBtn", "text_key": "about_game", "icon": "ℹ", "color": Color(0.6, 0.4, 0.9, 1.0), "callback": _on_about_pressed},
-		{"name": "QuitBtn", "text_key": "quit_game", "icon": "✕", "color": Color(0.9, 0.3, 0.3, 1.0), "callback": _on_quit_pressed},
-	]
+	start_btn = _create_glow_button("StartBtn", "start_game", "[>]", Color(0.2, 0.8, 0.5, 1.0))
+	start_btn.pressed.connect(_on_start_pressed)
+	btn_container.add_child(start_btn)
 	
-	for btn_data in buttons_data:
-		var btn: Button = _create_glow_button(btn_data)
-		btn_container.add_child(btn)
-		menu_buttons.append(btn)
-		match btn_data["name"]:
-			"StartBtn": start_btn = btn
-			"SettingsBtn": settings_btn = btn
-			"AboutBtn": about_btn = btn
-			"LoadoutBtn": loadout_btn = btn
-			"QuitBtn": quit_btn = btn
+	loadout_btn = _create_glow_button("LoadoutBtn", "loadout", "[X]", Color(0.9, 0.6, 0.2, 1.0))
+	loadout_btn.pressed.connect(_on_loadout_pressed)
+	btn_container.add_child(loadout_btn)
+	
+	settings_btn = _create_glow_button("SettingsBtn", "settings", "[O]", Color(0.3, 0.6, 1.0, 1.0))
+	settings_btn.pressed.connect(_on_settings_pressed)
+	btn_container.add_child(settings_btn)
+	
+	about_btn = _create_glow_button("AboutBtn", "about_game", "[i]", Color(0.6, 0.4, 0.9, 1.0))
+	about_btn.pressed.connect(_on_about_pressed)
+	btn_container.add_child(about_btn)
+	
+	quit_btn = _create_glow_button("QuitBtn", "quit_game", "[X]", Color(0.9, 0.3, 0.3, 1.0))
+	quit_btn.pressed.connect(_on_quit_pressed)
+	btn_container.add_child(quit_btn)
 
 
-func _create_glow_button(data: Dictionary) -> Button:
+func _create_glow_button(btn_name: String, text_key: String, icon: String, color: Color) -> Button:
 	var btn: Button = Button.new()
-	btn.name = data["name"]
+	btn.name = btn_name
 	btn.custom_minimum_size = Vector2(320, 56)
-	btn.text = "  %s  %s" % [data["icon"], GameSettings.t(data["text_key"])]
+	btn.text = "  " + icon + "  " + GameSettings.t(text_key)
 	btn.add_theme_font_size_override("font_size", 20)
 	btn.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	btn.add_theme_color_override("font_hover_color", Color(1, 1, 1, 1))
 	btn.add_theme_color_override("font_pressed_color", Color(1, 1, 1, 0.8))
-	
-	var color: Color = data["color"]
 	
 	var normal_style: StyleBoxFlat = StyleBoxFlat.new()
 	normal_style.bg_color = Color(0.06, 0.08, 0.12, 0.9)
@@ -183,8 +182,6 @@ func _create_glow_button(data: Dictionary) -> Button:
 	hover_style.content_margin_right = 20
 	hover_style.content_margin_top = 12
 	hover_style.content_margin_bottom = 12
-	hover_style.shadow_color = color * 0.5
-	hover_style.shadow_size = Vector2(0, 0)
 	btn.add_theme_stylebox_override("hover", hover_style)
 	
 	var pressed_style: StyleBoxFlat = StyleBoxFlat.new()
@@ -204,21 +201,9 @@ func _create_glow_button(data: Dictionary) -> Button:
 	pressed_style.content_margin_bottom = 11
 	btn.add_theme_stylebox_override("pressed", pressed_style)
 	
-	var cb: Callable = data["callback"]
-	btn.pressed.connect(cb)
 	btn.pressed.connect(UIAudio.play_click)
-	btn.mouse_entered.connect(_on_btn_mouse_enter)
-	btn.mouse_exited.connect(_on_btn_mouse_exit)
 	
 	return btn
-
-
-func _on_btn_mouse_enter() -> void:
-	pass
-
-
-func _on_btn_mouse_exit() -> void:
-	pass
 
 
 func _process(delta: float) -> void:
@@ -280,42 +265,40 @@ func _create_mode_select_screen() -> void:
 	cards_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	main_vbox.add_child(cards_hbox)
 	
-	var cards_data: Array = [
-		{
-			"name": "ZombieCard",
-			"icon": "🧟",
-			"title_key": "zombie_mode",
-			"desc_key": "zombie_mode_desc",
-			"color": Color(0.2, 0.8, 0.4, 1.0),
-			"callback": _on_zombie_mode_pressed
-		},
-		{
-			"name": "BotCard",
-			"icon": "🤖",
-			"title_key": "bot_mode",
-			"desc_key": "bot_mode_desc",
-			"color": Color(0.9, 0.3, 0.3, 1.0),
-			"callback": _on_bot_mode_pressed
-		},
-		{
-			"name": "MultiplayerCard",
-			"icon": "⚔",
-			"title_key": "multiplayer_mode",
-			"desc_key": "multiplayer_desc",
-			"color": Color(0.2, 0.6, 1.0, 1.0),
-			"callback": _on_multiplayer_pressed
-		},
-	]
+	var zombie_card: PanelContainer = _create_mode_card(
+		"ZombieCard",
+		"[Z]",
+		"zombie_mode",
+		"zombie_mode_desc",
+		Color(0.2, 0.8, 0.4, 1.0)
+	)
+	zombie_card.get_node("CardVBox/PlayBtn").pressed.connect(_on_zombie_mode_pressed)
+	cards_hbox.add_child(zombie_card)
 	
-	for card_data in cards_data:
-		var card: PanelContainer = _create_mode_card(card_data)
-		cards_hbox.add_child(card)
-		mode_cards.append(card)
+	var bot_card: PanelContainer = _create_mode_card(
+		"BotCard",
+		"[B]",
+		"bot_mode",
+		"bot_mode_desc",
+		Color(0.9, 0.3, 0.3, 1.0)
+	)
+	bot_card.get_node("CardVBox/PlayBtn").pressed.connect(_on_bot_mode_pressed)
+	cards_hbox.add_child(bot_card)
+	
+	var mp_card: PanelContainer = _create_mode_card(
+		"MultiplayerCard",
+		"[M]",
+		"multiplayer_mode",
+		"multiplayer_desc",
+		Color(0.2, 0.6, 1.0, 1.0)
+	)
+	mp_card.get_node("CardVBox/PlayBtn").pressed.connect(_on_multiplayer_pressed)
+	cards_hbox.add_child(mp_card)
 	
 	var back_btn: Button = Button.new()
 	back_btn.name = "BackBtn"
 	back_btn.custom_minimum_size = Vector2(200, 45)
-	back_btn.text = "←  " + GameSettings.t("back")
+	back_btn.text = "<-  " + GameSettings.t("back")
 	back_btn.add_theme_font_size_override("font_size", 18)
 	back_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	
@@ -358,12 +341,10 @@ func _create_mode_select_screen() -> void:
 	main_vbox.add_child(back_btn)
 
 
-func _create_mode_card(data: Dictionary) -> PanelContainer:
+func _create_mode_card(card_name: String, icon: String, title_key: String, desc_key: String, color: Color) -> PanelContainer:
 	var card: PanelContainer = PanelContainer.new()
-	card.name = data["name"]
+	card.name = card_name
 	card.custom_minimum_size = Vector2(280, 380)
-	
-	var color: Color = data["color"]
 	
 	var normal_style: StyleBoxFlat = StyleBoxFlat.new()
 	normal_style.bg_color = Color(0.05, 0.07, 0.1, 0.95)
@@ -391,15 +372,16 @@ func _create_mode_card(data: Dictionary) -> PanelContainer:
 	
 	var icon_label: Label = Label.new()
 	icon_label.name = "Icon"
-	icon_label.text = data["icon"]
+	icon_label.text = icon
 	icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	icon_label.add_theme_font_size_override("font_size", 64)
+	icon_label.add_theme_color_override("font_color", color)
 	icon_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card_vbox.add_child(icon_label)
 	
 	var title_label: Label = Label.new()
 	title_label.name = "Title"
-	title_label.text = GameSettings.t(data["title_key"])
+	title_label.text = GameSettings.t(title_key)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override("font_size", 26)
 	title_label.add_theme_color_override("font_color", color)
@@ -412,7 +394,7 @@ func _create_mode_card(data: Dictionary) -> PanelContainer:
 	
 	var desc_label: Label = Label.new()
 	desc_label.name = "Desc"
-	desc_label.text = GameSettings.t(data["desc_key"])
+	desc_label.text = GameSettings.t(desc_key)
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.add_theme_font_size_override("font_size", 15)
 	desc_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.8, 1.0))
@@ -427,7 +409,7 @@ func _create_mode_card(data: Dictionary) -> PanelContainer:
 	var play_btn: Button = Button.new()
 	play_btn.name = "PlayBtn"
 	play_btn.custom_minimum_size = Vector2(0, 50)
-	play_btn.text = "▶  " + GameSettings.t("start_game")
+	play_btn.text = "[>]  " + GameSettings.t("start_game")
 	play_btn.add_theme_font_size_override("font_size", 18)
 	play_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
@@ -465,7 +447,6 @@ func _create_mode_card(data: Dictionary) -> PanelContainer:
 	btn_hover.content_margin_bottom = 10
 	play_btn.add_theme_stylebox_override("hover", btn_hover)
 	
-	play_btn.pressed.connect(data["callback"])
 	play_btn.pressed.connect(UIAudio.play_click)
 	card_vbox.add_child(play_btn)
 	
@@ -655,53 +636,26 @@ func _create_about_screen() -> void:
 	modes_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.add_child(modes_title)
 	
-	var mode_items: Array = [
-		{"title_key": "about_zombie_title", "desc_key": "about_zombie_desc", "color": Color(0.2, 0.8, 0.4, 1.0)},
-		{"title_key": "about_bot_title", "desc_key": "about_bot_desc", "color": Color(0.9, 0.3, 0.3, 1.0)},
-		{"title_key": "about_multiplayer_title", "desc_key": "about_multiplayer_desc", "color": Color(0.3, 0.6, 1.0, 1.0)},
-	]
+	var z_card: PanelContainer = _create_about_card(
+		GameSettings.t("about_zombie_title"),
+		GameSettings.t("about_zombie_desc"),
+		Color(0.2, 0.8, 0.4, 1.0)
+	)
+	content.add_child(z_card)
 	
-	for item in mode_items:
-		var card: PanelContainer = PanelContainer.new()
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var card_style: StyleBoxFlat = StyleBoxFlat.new()
-		card_style.bg_color = Color(0.06, 0.08, 0.12, 0.9)
-		card_style.border_color = item["color"] * 0.5
-		card_style.border_width_left = 3
-		card_style.border_width_right = 1
-		card_style.border_width_top = 1
-		card_style.border_width_bottom = 1
-		card_style.corner_radius_top_left = 8
-		card_style.corner_radius_top_right = 8
-		card_style.corner_radius_bottom_left = 8
-		card_style.corner_radius_bottom_right = 8
-		card_style.content_margin_top = 14
-		card_style.content_margin_bottom = 14
-		card_style.content_margin_left = 18
-		card_style.content_margin_right = 18
-		card.add_theme_stylebox_override("panel", card_style)
-		
-		var card_vbox: VBoxContainer = VBoxContainer.new()
-		card_vbox.add_theme_constant_override("separation", 6)
-		card_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card.add_child(card_vbox)
-		
-		var t_label: Label = Label.new()
-		t_label.text = GameSettings.t(item["title_key"])
-		t_label.add_theme_font_size_override("font_size", 20)
-		t_label.add_theme_color_override("font_color", item["color"])
-		t_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card_vbox.add_child(t_label)
-		
-		var d_label: Label = Label.new()
-		d_label.text = GameSettings.t(item["desc_key"])
-		d_label.add_theme_font_size_override("font_size", 14)
-		d_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
-		d_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		d_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card_vbox.add_child(d_label)
-		
-		content.add_child(card)
+	var b_card: PanelContainer = _create_about_card(
+		GameSettings.t("about_bot_title"),
+		GameSettings.t("about_bot_desc"),
+		Color(0.9, 0.3, 0.3, 1.0)
+	)
+	content.add_child(b_card)
+	
+	var m_card: PanelContainer = _create_about_card(
+		GameSettings.t("about_multiplayer_title"),
+		GameSettings.t("about_multiplayer_desc"),
+		Color(0.3, 0.6, 1.0, 1.0)
+	)
+	content.add_child(m_card)
 	
 	var sep3: HSeparator = HSeparator.new()
 	sep3.modulate.a = 0.3
@@ -709,7 +663,7 @@ func _create_about_screen() -> void:
 	
 	var back_btn: Button = Button.new()
 	back_btn.custom_minimum_size = Vector2(200, 45)
-	back_btn.text = "←  " + GameSettings.t("back")
+	back_btn.text = "<-  " + GameSettings.t("back")
 	back_btn.add_theme_font_size_override("font_size", 18)
 	back_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	
@@ -754,6 +708,50 @@ func _create_about_screen() -> void:
 	add_child(about_screen)
 
 
+func _create_about_card(title: String, desc: String, color: Color) -> PanelContainer:
+	var card: PanelContainer = PanelContainer.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	
+	var card_style: StyleBoxFlat = StyleBoxFlat.new()
+	card_style.bg_color = Color(0.06, 0.08, 0.12, 0.9)
+	card_style.border_color = color * 0.5
+	card_style.border_width_left = 3
+	card_style.border_width_right = 1
+	card_style.border_width_top = 1
+	card_style.border_width_bottom = 1
+	card_style.corner_radius_top_left = 8
+	card_style.corner_radius_top_right = 8
+	card_style.corner_radius_bottom_left = 8
+	card_style.corner_radius_bottom_right = 8
+	card_style.content_margin_top = 14
+	card_style.content_margin_bottom = 14
+	card_style.content_margin_left = 18
+	card_style.content_margin_right = 18
+	card.add_theme_stylebox_override("panel", card_style)
+	
+	var card_vbox: VBoxContainer = VBoxContainer.new()
+	card_vbox.add_theme_constant_override("separation", 6)
+	card_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.add_child(card_vbox)
+	
+	var t_label: Label = Label.new()
+	t_label.text = title
+	t_label.add_theme_font_size_override("font_size", 20)
+	t_label.add_theme_color_override("font_color", color)
+	t_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card_vbox.add_child(t_label)
+	
+	var d_label: Label = Label.new()
+	d_label.text = desc
+	d_label.add_theme_font_size_override("font_size", 14)
+	d_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 1))
+	d_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	d_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card_vbox.add_child(d_label)
+	
+	return card
+
+
 func _on_about_back_pressed() -> void:
 	if about_screen:
 		about_screen.visible = false
@@ -762,42 +760,60 @@ func _on_about_back_pressed() -> void:
 
 func _apply_language() -> void:
 	if start_btn:
-		start_btn.text = "  ▶  " + GameSettings.t("start_game")
+		start_btn.text = "  [>]  " + GameSettings.t("start_game")
 	if settings_btn:
-		settings_btn.text = "  ⚙  " + GameSettings.t("settings")
+		settings_btn.text = "  [O]  " + GameSettings.t("settings")
 	if about_btn:
-		about_btn.text = "  ℹ  " + GameSettings.t("about_game")
+		about_btn.text = "  [i]  " + GameSettings.t("about_game")
 	if loadout_btn:
-		loadout_btn.text = "  ⚔  " + GameSettings.t("loadout")
+		loadout_btn.text = "  [X]  " + GameSettings.t("loadout")
 	if quit_btn:
-		quit_btn.text = "  ✕  " + GameSettings.t("quit_game")
+		quit_btn.text = "  [X]  " + GameSettings.t("quit_game")
 	
 	if mode_screen:
 		var title_lbl: Label = mode_screen.get_node_or_null("MainVBox/ModeTitle")
 		if title_lbl:
 			title_lbl.text = GameSettings.t("select_mode")
 		
-		var cards: Array = [
-			{"path": "MainVBox/CardsRow/ZombieCard/CardVBox", "title_key": "zombie_mode", "desc_key": "zombie_mode_desc"},
-			{"path": "MainVBox/CardsRow/BotCard/CardVBox", "title_key": "bot_mode", "desc_key": "bot_mode_desc"},
-			{"path": "MainVBox/CardsRow/MultiplayerCard/CardVBox", "title_key": "multiplayer_mode", "desc_key": "multiplayer_desc"},
-		]
-		for card_info in cards:
-			var card_vbox = mode_screen.get_node_or_null(card_info["path"])
-			if card_vbox:
-				var t: Label = card_vbox.get_node_or_null("Title")
-				var d: Label = card_vbox.get_node_or_null("Desc")
-				var b: Button = card_vbox.get_node_or_null("PlayBtn")
-				if t:
-					t.text = GameSettings.t(card_info["title_key"])
-				if d:
-					d.text = GameSettings.t(card_info["desc_key"])
-				if b:
-					b.text = "▶  " + GameSettings.t("start_game")
+		var zombie_vbox = mode_screen.get_node_or_null("MainVBox/CardsRow/ZombieCard/CardVBox")
+		if zombie_vbox:
+			var zt: Label = zombie_vbox.get_node_or_null("Title")
+			var zd: Label = zombie_vbox.get_node_or_null("Desc")
+			var zb: Button = zombie_vbox.get_node_or_null("PlayBtn")
+			if zt:
+				zt.text = GameSettings.t("zombie_mode")
+			if zd:
+				zd.text = GameSettings.t("zombie_mode_desc")
+			if zb:
+				zb.text = "[>]  " + GameSettings.t("start_game")
+		
+		var bot_vbox = mode_screen.get_node_or_null("MainVBox/CardsRow/BotCard/CardVBox")
+		if bot_vbox:
+			var bt: Label = bot_vbox.get_node_or_null("Title")
+			var bd: Label = bot_vbox.get_node_or_null("Desc")
+			var bb: Button = bot_vbox.get_node_or_null("PlayBtn")
+			if bt:
+				bt.text = GameSettings.t("bot_mode")
+			if bd:
+				bd.text = GameSettings.t("bot_mode_desc")
+			if bb:
+				bb.text = "[>]  " + GameSettings.t("start_game")
+		
+		var mp_vbox = mode_screen.get_node_or_null("MainVBox/CardsRow/MultiplayerCard/CardVBox")
+		if mp_vbox:
+			var mt: Label = mp_vbox.get_node_or_null("Title")
+			var md: Label = mp_vbox.get_node_or_null("Desc")
+			var mb: Button = mp_vbox.get_node_or_null("PlayBtn")
+			if mt:
+				mt.text = GameSettings.t("multiplayer_mode")
+			if md:
+				md.text = GameSettings.t("multiplayer_desc")
+			if mb:
+				mb.text = "[>]  " + GameSettings.t("start_game")
 		
 		var back_btn: Button = mode_screen.get_node_or_null("MainVBox/BackBtn")
 		if back_btn:
-			back_btn.text = "←  " + GameSettings.t("back")
+			back_btn.text = "<-  " + GameSettings.t("back")
 
 
 func _create_player_info_panel() -> void:
@@ -976,7 +992,7 @@ func _create_avatar_picker() -> void:
 	
 	for i in range(total_avatars):
 		var cell: PanelContainer = PanelContainer.new()
-		cell.name = "AvatarCell_%d" % i
+		cell.name = "AvatarCell_" + str(i)
 		cell.custom_minimum_size = Vector2(cell_size, cell_size)
 		
 		var cell_style: StyleBoxFlat = StyleBoxFlat.new()
@@ -1001,14 +1017,14 @@ func _create_avatar_picker() -> void:
 		cell.add_theme_stylebox_override("panel", cell_style)
 		
 		var avatar_node: Control = Control.new()
-		avatar_node.name = "Avatar_%d" % i
+		avatar_node.name = "Avatar_" + str(i)
 		avatar_node.set_script(avatar_script)
 		avatar_node.avatar_id = i
 		avatar_node.avatar_size = Vector2(cell_size - 10, cell_size - 10)
 		cell.add_child(avatar_node)
 		
 		var select_btn: Button = Button.new()
-		select_btn.name = "SelectBtn_%d" % i
+		select_btn.name = "SelectBtn_" + str(i)
 		select_btn.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		select_btn.add_theme_font_size_override("font_size", 0)
 		
