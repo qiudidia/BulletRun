@@ -28,6 +28,11 @@
   - UDP广播自动发现房间
   - 中途加入游戏
 
+- **自动更新**
+  - 游戏内置更新检测
+  - 启动时自动检查GitHub最新版本
+  - 发现新版本时显示更新提示
+
 ## 🎮 操作说明
 
 | 按键 | 功能 |
@@ -43,14 +48,9 @@
 
 ## 🚀 下载与安装
 
-### 方法一：使用启动器（推荐）
-1. 下载 `BulletRun-vX.X.X-win64.zip`
-2. 解压后双击运行 `Launcher.bat`
-3. 启动器会自动检查更新并下载最新版本
-
-### 方法二：手动启动
-1. 下载 `BulletRun-vX.X.X-win64.zip`
-2. 解压后直接运行 `BulletRun.exe`
+1. 前往 [Releases](https://github.com/qiudidia/BulletRun/releases) 页面
+2. 下载最新版本的 `BulletRun-vX.X.X-win64.zip`
+3. 解压后运行 `BulletRun.exe`
 
 ## 🔧 从源码构建
 
