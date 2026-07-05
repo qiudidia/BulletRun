@@ -1,14 +1,13 @@
 extends Control
-## 动态背景效果
-## 渐变背景 + 扫描线 + 漂浮粒子 + 光晕效果
+## 动态背景效果（简化版）
+## 渐变背景 + 漂浮粒子 + 光晕效果 + 角落标记
 
-@export var base_color: Color = Color(0.03, 0.04, 0.08, 1.0)
-@export var accent_color: Color = Color(0.2, 0.5, 1.0, 0.3)
-@export var particle_count: int = 50
+@export var base_color: Color = Color(0.05, 0.06, 0.1, 1.0)
+@export var accent_color: Color = Color(0.2, 0.4, 0.8, 0.2)
+@export var particle_count: int = 20
 
 var particles: Array = []
 var time: float = 0.0
-var scanline_y: float = 0.0
 
 
 func _ready() -> void:
@@ -16,16 +15,15 @@ func _ready() -> void:
 		particles.append({
 			"x": randf(),
 			"y": randf(),
-			"size": randf_range(1.5, 4.0),
-			"speed": randf_range(0.02, 0.08),
-			"opacity": randf_range(0.2, 0.6),
-			"drift": randf_range(-0.02, 0.02)
+			"size": randf_range(1.5, 3.5),
+			"speed": randf_range(0.02, 0.06),
+			"opacity": randf_range(0.2, 0.5),
+			"drift": randf_range(-0.015, 0.015)
 		})
 
 
 func _process(delta: float) -> void:
 	time += delta
-	scanline_y = fmod(time * 0.15, 1.0)
 	queue_redraw()
 
 
@@ -36,10 +34,7 @@ func _draw() -> void:
 	
 	_draw_gradient_bg(w, h)
 	_draw_radial_glow(w, h)
-	_draw_scanlines(w, h)
-	_draw_scanline_bar(w, h)
 	_draw_particles(w, h)
-	_draw_corner_brackets(w, h)
 	_draw_grid(w, h)
 
 
@@ -69,7 +64,7 @@ func _draw_radial_glow(w: float, h: float) -> void:
 	for i in range(steps):
 		var t: float = float(i) / float(steps)
 		var r: float = max_r * t
-		var alpha: float = (1.0 - t) * 0.15
+		var alpha: float = (1.0 - t) * 0.08
 		var col: Color = accent_color
 		col.a = alpha
 		var points := PackedVector2Array()
@@ -86,27 +81,6 @@ func _draw_radial_glow(w: float, h: float) -> void:
 		draw_polygon(points, colors)
 
 
-func _draw_scanlines(w: float, h: float) -> void:
-	var line_gap: float = 4.0
-	for y in range(0, int(h), int(line_gap * 2)):
-		var col: Color = Color(0.0, 0.6, 1.0, 0.03)
-		draw_line(Vector2(0, y), Vector2(w, y), col, 1.0)
-
-
-func _draw_scanline_bar(w: float, h: float) -> void:
-	var y: float = scanline_y * h
-	var bar_height: float = 80.0
-	
-	for i in range(20):
-		var t: float = float(i) / 20.0
-		var alpha: float = (1.0 - t) * 0.15
-		var col: Color = Color(0.3, 0.7, 1.0, alpha)
-		draw_line(Vector2(0, y - t * bar_height), Vector2(w, y - t * bar_height), col, 1.0)
-		draw_line(Vector2(0, y + t * bar_height), Vector2(w, y + t * bar_height), col, 1.0)
-	
-	draw_line(Vector2(0, y), Vector2(w, y), Color(0.4, 0.8, 1.0, 0.4), 2.0)
-
-
 func _draw_particles(w: float, h: float) -> void:
 	for p in particles:
 		p["y"] = float(p["y"]) + float(p["speed"]) * 0.01
@@ -118,21 +92,21 @@ func _draw_particles(w: float, h: float) -> void:
 		
 		var px: float = float(p["x"]) * w
 		var py: float = float(p["y"]) * h
-		var size: float = float(p["size"])
+		var p_size: float = float(p["size"])
 		var op: float = float(p["opacity"])
 		
-		var glow_col: Color = Color(0.4, 0.7, 1.0, op * 0.3)
-		draw_circle(Vector2(px, py), size * 2.0, glow_col)
+		var glow_col: Color = Color(0.4, 0.7, 1.0, op * 0.15)
+		draw_circle(Vector2(px, py), p_size * 1.5, glow_col)
 		
-		var core_col: Color = Color(0.7, 0.9, 1.0, op)
-		draw_circle(Vector2(px, py), size * 0.6, core_col)
+		var core_col: Color = Color(0.7, 0.9, 1.0, op * 0.6)
+		draw_circle(Vector2(px, py), p_size * 0.5, core_col)
 
 
 func _draw_corner_brackets(w: float, h: float) -> void:
 	var margin: float = 30.0
 	var bracket_len: float = 60.0
-	var col: Color = Color(0.3, 0.6, 1.0, 0.6)
-	var thickness: float = 2.0
+	var col: Color = Color(0.3, 0.5, 0.8, 0.3)
+	var thickness: float = 1.5
 	
 	draw_line(Vector2(margin, margin), Vector2(margin + bracket_len, margin), col, thickness)
 	draw_line(Vector2(margin, margin), Vector2(margin, margin + bracket_len), col, thickness)
@@ -149,7 +123,7 @@ func _draw_corner_brackets(w: float, h: float) -> void:
 
 func _draw_grid(w: float, h: float) -> void:
 	var grid_size: float = 80.0
-	var col: Color = Color(0.2, 0.4, 0.8, 0.08)
+	var col: Color = Color(0.2, 0.35, 0.7, 0.04)
 	
 	for x in range(0, int(w), int(grid_size)):
 		draw_line(Vector2(x, 0), Vector2(x, h), col, 1.0)

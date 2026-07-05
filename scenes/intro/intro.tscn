@@ -97,7 +97,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 20
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
-text = "2D Top-Down Shooter · XP & Rank System"
+text = "2D Top-Down Shooter"
 horizontal_alignment = 1
 
 [node name="SkipHint" type="Label" parent="."]

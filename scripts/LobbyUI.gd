@@ -120,7 +120,8 @@ func _connect_click_sounds(node: Node) -> void:
 	for child in node.get_children():
 		_connect_click_sounds(child)
 		if child is Button:
-			child.pressed.connect(UIAudio.play_click)
+			if not child.pressed.is_connected(UIAudio.play_click):
+				child.pressed.connect(UIAudio.play_click)
 
 
 func _process(delta: float) -> void:
@@ -140,13 +141,18 @@ func _build_select_screen() -> void:
 	select_screen.name = "SelectScreen"
 	select_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	# 背景
 	var bg: ColorRect = ColorRect.new()
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.04, 0.04, 0.06, 1)
+	bg.color = Color(0.03, 0.04, 0.08, 1)
 	select_screen.add_child(bg)
+	
+	var bg_script: GDScript = load("res://scripts/DynamicBackground.gd")
+	var bg_node := Control.new()
+	bg_node.name = "DynamicBG"
+	bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_node.set_script(bg_script)
+	select_screen.add_child(bg_node)
 
-	# 中心布局
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	select_screen.add_child(center)
@@ -156,39 +162,81 @@ func _build_select_screen() -> void:
 	vbox.add_theme_constant_override("separation", 20)
 	center.add_child(vbox)
 
-	# 标题
 	var title: Label = Label.new()
 	title.text = GameSettings.t("multiplayer_mode")
-	title.add_theme_font_size_override("font_size", 36)
-	title.add_theme_color_override("font_color", Color(1, 0.8, 0, 1))
+	title.add_theme_font_size_override("font_size", 40)
+	title.add_theme_color_override("font_color", Color(1, 0.85, 0.3, 1))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
+	
+	var subtitle: Label = Label.new()
+	subtitle.text = "// ONLINE //"
+	subtitle.add_theme_font_size_override("font_size", 16)
+	subtitle.add_theme_color_override("font_color", Color(0.4, 0.7, 1.0, 0.7))
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(subtitle)
 
-	# 创建房间按钮
-	var create_room_btn: Button = Button.new()
-	create_room_btn.text = GameSettings.t("create_room")
-	create_room_btn.custom_minimum_size = Vector2(250, 50)
-	create_room_btn.add_theme_font_size_override("font_size", 20)
+	var create_room_btn: Button = _create_styled_button(GameSettings.t("create_room"), "", Color(0.2, 0.8, 0.5, 1))
 	create_room_btn.pressed.connect(func(): _show_state(LobbyState.CREATE_ROOM))
 	vbox.add_child(create_room_btn)
 
-	# 加入房间按钮
-	var join_room_btn: Button = Button.new()
-	join_room_btn.text = GameSettings.t("join_room")
-	join_room_btn.custom_minimum_size = Vector2(250, 50)
-	join_room_btn.add_theme_font_size_override("font_size", 20)
+	var join_room_btn: Button = _create_styled_button(GameSettings.t("join_room"), "", Color(0.3, 0.6, 1.0, 1))
 	join_room_btn.pressed.connect(func(): _show_state(LobbyState.JOIN_ROOM))
 	vbox.add_child(join_room_btn)
 
-	# 返回按钮
-	var back_btn: Button = Button.new()
-	back_btn.text = GameSettings.t("back")
-	back_btn.custom_minimum_size = Vector2(250, 50)
-	back_btn.add_theme_font_size_override("font_size", 18)
+	var back_btn: Button = _create_styled_button(GameSettings.t("back"), "", Color(0.5, 0.5, 0.6, 1), 220, 44)
 	back_btn.pressed.connect(_on_back_to_menu)
 	vbox.add_child(back_btn)
 
 	add_child(select_screen)
+
+
+func _create_styled_button(text: String, icon: String, color: Color, width: int = 260, height: int = 46) -> Button:
+	var btn := Button.new()
+	if icon != "":
+		btn.text = "  " + icon + "  " + text
+	else:
+		btn.text = text
+	btn.custom_minimum_size = Vector2(width, height)
+	btn.add_theme_font_size_override("font_size", 17)
+	
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.08, 0.1, 0.14, 0.85)
+	normal.border_color = color * 0.4
+	normal.border_width_left = 1
+	normal.border_width_right = 1
+	normal.border_width_top = 1
+	normal.border_width_bottom = 1
+	normal.corner_radius_top_left = 8
+	normal.corner_radius_top_right = 8
+	normal.corner_radius_bottom_left = 8
+	normal.corner_radius_bottom_right = 8
+	normal.content_margin_left = 18
+	normal.content_margin_right = 18
+	normal.content_margin_top = 10
+	normal.content_margin_bottom = 10
+	btn.add_theme_stylebox_override("normal", normal)
+	
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = color * 0.12 + Color(0.08, 0.1, 0.14, 0.9)
+	hover.border_color = color * 0.7
+	hover.border_width_left = 1
+	hover.border_width_right = 1
+	hover.border_width_top = 1
+	hover.border_width_bottom = 1
+	hover.corner_radius_top_left = 8
+	hover.corner_radius_top_right = 8
+	hover.corner_radius_bottom_left = 8
+	hover.corner_radius_bottom_right = 8
+	hover.content_margin_left = 18
+	hover.content_margin_right = 18
+	hover.content_margin_top = 10
+	hover.content_margin_bottom = 10
+	btn.add_theme_stylebox_override("hover", hover)
+	
+	btn.add_theme_color_override("font_color", Color(0.85, 0.9, 1.0, 1))
+	btn.pressed.connect(UIAudio.play_click)
+	return btn
 
 
 # =============================================================================
@@ -201,8 +249,15 @@ func _build_create_screen() -> void:
 
 	var bg: ColorRect = ColorRect.new()
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.04, 0.04, 0.06, 1)
+	bg.color = Color(0.03, 0.04, 0.08, 1)
 	create_screen.add_child(bg)
+	
+	var bg_script: GDScript = load("res://scripts/DynamicBackground.gd")
+	var bg_node := Control.new()
+	bg_node.name = "DynamicBG"
+	bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_node.set_script(bg_script)
+	create_screen.add_child(bg_node)
 
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -213,11 +268,11 @@ func _build_create_screen() -> void:
 	vbox.add_theme_constant_override("separation", 16)
 	center.add_child(vbox)
 
-	# 标题
 	var title: Label = Label.new()
 	title.text = GameSettings.t("create_room")
-	title.add_theme_font_size_override("font_size", 30)
-	title.add_theme_color_override("font_color", Color(1, 0.8, 0, 1))
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", Color(1, 0.85, 0.3, 1))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
 	# 你的昵称（只读，已在首次游戏时设置）
@@ -226,7 +281,7 @@ func _build_create_screen() -> void:
 	nick_label.add_theme_font_size_override("font_size", 16)
 	vbox.add_child(nick_label)
 
-	nickname_input = LineEdit.new()
+	nickname_input = UIStyle.create_styled_line_edit()
 	nickname_input.custom_minimum_size = Vector2(250, 35)
 	nickname_input.editable = false
 	vbox.add_child(nickname_input)
@@ -242,7 +297,7 @@ func _build_create_screen() -> void:
 	name_label.add_theme_font_size_override("font_size", 16)
 	vbox.add_child(name_label)
 
-	room_name_input = LineEdit.new()
+	room_name_input = UIStyle.create_styled_line_edit()
 	room_name_input.placeholder_text = GameSettings.t("enter_room_name")
 	room_name_input.custom_minimum_size = Vector2(250, 35)
 	room_name_input.max_length = 20
@@ -254,7 +309,7 @@ func _build_create_screen() -> void:
 	mode_label.add_theme_font_size_override("font_size", 16)
 	vbox.add_child(mode_label)
 
-	mode_option = OptionButton.new()
+	mode_option = UIStyle.create_styled_option_button()
 	mode_option.add_item(GameSettings.t("duel_mode"), NetworkManager.GameMode.DUEL)
 	mode_option.add_item(GameSettings.t("brawl_mode"), NetworkManager.GameMode.BRAWL)
 	mode_option.add_item(GameSettings.t("zombie_coop_mode"), NetworkManager.GameMode.ZOMBIE)
@@ -274,9 +329,8 @@ func _build_create_screen() -> void:
 	mode_option.item_selected.connect(func(_idx: int): _update_mode_desc())
 
 	# 创建按钮（初始禁用，填好昵称+房间名后才启用）
-	create_btn = Button.new()
-	create_btn.text = GameSettings.t("create_room")
-	create_btn.custom_minimum_size = Vector2(250, 45)
+	create_btn = _create_styled_button(GameSettings.t("create_room"), "", Color(0.2, 0.8, 0.5, 1))
+	create_btn.custom_minimum_size = Vector2(250, 48)
 	create_btn.add_theme_font_size_override("font_size", 18)
 	create_btn.disabled = true
 	create_btn.pressed.connect(_on_create_room_pressed)
@@ -287,10 +341,7 @@ func _build_create_screen() -> void:
 	room_name_input.text_changed.connect(func(_new_text: String): _validate_create_fields())
 
 	# 返回
-	create_back_btn = Button.new()
-	create_back_btn.text = GameSettings.t("back")
-	create_back_btn.custom_minimum_size = Vector2(250, 40)
-	create_back_btn.add_theme_font_size_override("font_size", 16)
+	create_back_btn = _create_styled_button(GameSettings.t("back"), "", Color(0.5, 0.5, 0.6, 1), 220, 42)
 	create_back_btn.pressed.connect(func(): _show_state(LobbyState.SELECT_ACTION))
 	vbox.add_child(create_back_btn)
 
@@ -318,8 +369,15 @@ func _build_join_screen() -> void:
 
 	var bg: ColorRect = ColorRect.new()
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.04, 0.04, 0.06, 1)
+	bg.color = Color(0.03, 0.04, 0.08, 1)
 	join_screen.add_child(bg)
+	
+	var bg_script: GDScript = load("res://scripts/DynamicBackground.gd")
+	var bg_node := Control.new()
+	bg_node.name = "DynamicBG"
+	bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_node.set_script(bg_script)
+	join_screen.add_child(bg_node)
 
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -330,11 +388,11 @@ func _build_join_screen() -> void:
 	vbox.add_theme_constant_override("separation", 12)
 	center.add_child(vbox)
 
-	# 标题
 	var title: Label = Label.new()
 	title.text = GameSettings.t("join_room")
-	title.add_theme_font_size_override("font_size", 30)
-	title.add_theme_color_override("font_color", Color(1, 0.8, 0, 1))
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", Color(1, 0.85, 0.3, 1))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
 	# 你的昵称（只读，已在首次游戏时设置）
@@ -343,7 +401,7 @@ func _build_join_screen() -> void:
 	nick_label.add_theme_font_size_override("font_size", 16)
 	vbox.add_child(nick_label)
 
-	join_nickname_input = LineEdit.new()
+	join_nickname_input = UIStyle.create_styled_line_edit()
 	join_nickname_input.custom_minimum_size = Vector2(250, 35)
 	join_nickname_input.editable = false
 	vbox.add_child(join_nickname_input)
@@ -363,9 +421,28 @@ func _build_join_screen() -> void:
 	# 房间列表
 	room_list = ItemList.new()
 	room_list.custom_minimum_size = Vector2(400, 250)
-	room_list.add_theme_font_size_override("font_size", 16)
+	room_list.add_theme_font_size_override("font_size", 15)
+	
+	var item_style := StyleBoxFlat.new()
+	item_style.bg_color = Color(0.06, 0.08, 0.12, 0.7)
+	item_style.border_color = Color(0.3, 0.5, 0.8, 0.4)
+	item_style.border_width_left = 1
+	item_style.border_width_right = 1
+	item_style.border_width_top = 1
+	item_style.border_width_bottom = 1
+	room_list.add_theme_stylebox_override("normal", item_style)
+	
+	var item_hover := StyleBoxFlat.new()
+	item_hover.bg_color = Color(0.1, 0.14, 0.2, 0.8)
+	item_hover.border_color = Color(0.4, 0.6, 1.0, 0.6)
+	item_hover.border_width_left = 1
+	item_hover.border_width_right = 1
+	item_hover.border_width_top = 1
+	item_hover.border_width_bottom = 1
+	room_list.add_theme_stylebox_override("hover", item_hover)
+	
 	room_list.item_selected.connect(_on_room_selected)
-	room_list.item_activated.connect(_on_room_activated)  # 双击
+	room_list.item_activated.connect(_on_room_activated)
 	vbox.add_child(room_list)
 
 	# 无房间提示
@@ -377,16 +454,14 @@ func _build_join_screen() -> void:
 	vbox.add_child(no_room_label)
 
 	# 刷新
-	refresh_btn = Button.new()
-	refresh_btn.text = GameSettings.t("refresh")
-	refresh_btn.custom_minimum_size = Vector2(250, 40)
+	refresh_btn = _create_styled_button(GameSettings.t("refresh"), "", Color(0.3, 0.6, 1.0, 1))
+	refresh_btn.custom_minimum_size = Vector2(250, 42)
 	refresh_btn.pressed.connect(func(): _update_room_list())
 	vbox.add_child(refresh_btn)
 
 	# 加入按钮（昵称非空+选中房间才能点击）
-	join_btn = Button.new()
-	join_btn.text = GameSettings.t("join_room")
-	join_btn.custom_minimum_size = Vector2(250, 45)
+	join_btn = _create_styled_button(GameSettings.t("join_room"), "", Color(0.2, 0.8, 0.5, 1))
+	join_btn.custom_minimum_size = Vector2(250, 48)
 	join_btn.add_theme_font_size_override("font_size", 18)
 	join_btn.disabled = true
 	join_btn.pressed.connect(_on_join_room_pressed)
@@ -396,9 +471,7 @@ func _build_join_screen() -> void:
 	join_nickname_input.text_changed.connect(func(_new_text: String): _validate_join_fields())
 
 	# 返回
-	join_back_btn = Button.new()
-	join_back_btn.text = GameSettings.t("back")
-	join_back_btn.custom_minimum_size = Vector2(250, 40)
+	join_back_btn = _create_styled_button(GameSettings.t("back"), "", Color(0.5, 0.5, 0.6, 1), 220, 42)
 	join_back_btn.pressed.connect(func():
 		NetworkManager.stop_discovery()
 		_show_state(LobbyState.SELECT_ACTION)
@@ -418,8 +491,15 @@ func _build_waiting_screen() -> void:
 
 	var bg: ColorRect = ColorRect.new()
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.04, 0.04, 0.06, 1)
+	bg.color = Color(0.03, 0.04, 0.08, 1)
 	waiting_screen.add_child(bg)
+	
+	var bg_script: GDScript = load("res://scripts/DynamicBackground.gd")
+	var bg_node := Control.new()
+	bg_node.name = "DynamicBG"
+	bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_node.set_script(bg_script)
+	waiting_screen.add_child(bg_node)
 
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -430,11 +510,17 @@ func _build_waiting_screen() -> void:
 	vbox.add_theme_constant_override("separation", 14)
 	center.add_child(vbox)
 
+	var room_title_label: Label = Label.new()
+	room_title_label.name = "RoomTitleLabel"
+	room_title_label.add_theme_font_size_override("font_size", 30)
+	room_title_label.add_theme_color_override("font_color", Color(1, 0.85, 0.3, 1))
+	room_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(room_title_label)
+
 	# 房间标题
-	waiting_label = Label.new()
+	waiting_label = room_title_label
 	waiting_label.add_theme_font_size_override("font_size", 28)
 	waiting_label.add_theme_color_override("font_color", Color(1, 0.8, 0, 1))
-	vbox.add_child(waiting_label)
 
 	# 模式标签
 	waiting_mode_label = Label.new()
@@ -474,21 +560,16 @@ func _build_waiting_screen() -> void:
 	team_info_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6, 1))
 	vbox.add_child(team_info_label)
 
-	# 模式切换按钮（只有房主可见）
-	mode_switch_btn = Button.new()
+	mode_switch_btn = _create_styled_button(GameSettings.t("switch_mode"), "", Color(0.4, 0.6, 0.8, 1), 220, 42)
 	mode_switch_btn.name = "ModeSwitchBtn"
-	mode_switch_btn.text = GameSettings.t("switch_mode")
-	mode_switch_btn.custom_minimum_size = Vector2(250, 40)
 	mode_switch_btn.add_theme_font_size_override("font_size", 16)
 	mode_switch_btn.pressed.connect(_on_mode_switch_pressed)
 	mode_switch_btn.visible = false
 	vbox.add_child(mode_switch_btn)
 
-	# 开始按钮（只有房主可见）
-	start_btn = Button.new()
+	start_btn = _create_styled_button(GameSettings.t("start_game"), "", Color(0.2, 0.8, 0.5, 1))
 	start_btn.name = "StartBtn"
-	start_btn.text = GameSettings.t("start_game")
-	start_btn.custom_minimum_size = Vector2(250, 50)
+	start_btn.custom_minimum_size = Vector2(250, 52)
 	start_btn.add_theme_font_size_override("font_size", 20)
 	start_btn.visible = false
 	start_btn.pressed.connect(_on_start_game_pressed)
@@ -516,28 +597,21 @@ func _build_waiting_screen() -> void:
 	game_hint_label.visible = false
 	vbox.add_child(game_hint_label)
 
-	# 中途加入游戏按钮（游戏进行中时显示）
-	join_game_btn = Button.new()
+	join_game_btn = _create_styled_button(GameSettings.t("join_mid_game"), "", Color(0.9, 0.6, 0.2, 1))
 	join_game_btn.name = "JoinGameBtn"
-	join_game_btn.text = GameSettings.t("join_mid_game")
-	join_game_btn.custom_minimum_size = Vector2(250, 50)
+	join_game_btn.custom_minimum_size = Vector2(250, 52)
 	join_game_btn.add_theme_font_size_override("font_size", 20)
 	join_game_btn.visible = false
 	join_game_btn.pressed.connect(_on_join_mid_game)
 	vbox.add_child(join_game_btn)
 
-	# 准备按钮（所有玩家都有）
-	ready_btn = Button.new()
-	ready_btn.custom_minimum_size = Vector2(250, 45)
+	ready_btn = _create_styled_button(GameSettings.t("ready_up"), "", Color(0.3, 0.6, 1.0, 1))
+	ready_btn.custom_minimum_size = Vector2(250, 48)
 	ready_btn.add_theme_font_size_override("font_size", 18)
 	ready_btn.pressed.connect(_on_ready_pressed)
 	vbox.add_child(ready_btn)
 
-	# 取消按钮
-	cancel_btn = Button.new()
-	cancel_btn.text = GameSettings.t("cancel")
-	cancel_btn.custom_minimum_size = Vector2(250, 40)
-	cancel_btn.add_theme_font_size_override("font_size", 16)
+	cancel_btn = _create_styled_button(GameSettings.t("cancel"), "", Color(0.8, 0.3, 0.3, 1), 220, 42)
 	cancel_btn.pressed.connect(_on_cancel_waiting)
 	vbox.add_child(cancel_btn)
 
@@ -1147,15 +1221,14 @@ func _on_game_start_requested(mode: int) -> void:
 
 
 func _start_game_scene(mode: NetworkManager.GameMode) -> void:
-	# 进入游戏场景前停止主界面BGM
 	BGMManager.stop_bgm()
 	match mode:
 		NetworkManager.GameMode.DUEL:
-			get_tree().change_scene_to_file("res://scenes/game/multiplayer/duel_game.tscn")
+			SceneTransition.fade_out("res://scenes/game/multiplayer/duel_game.tscn")
 		NetworkManager.GameMode.BRAWL:
-			get_tree().change_scene_to_file("res://scenes/game/multiplayer/brawl_game.tscn")
+			SceneTransition.fade_out("res://scenes/game/multiplayer/brawl_game.tscn")
 		NetworkManager.GameMode.ZOMBIE:
-			get_tree().change_scene_to_file("res://scenes/game/multiplayer/zombie_coop_game.tscn")
+			SceneTransition.fade_out("res://scenes/game/multiplayer/zombie_coop_game.tscn")
 
 
 func _on_join_mid_game() -> void:
@@ -1202,7 +1275,8 @@ func _on_cancel_waiting() -> void:
 
 func _on_back_to_menu() -> void:
 	NetworkManager.disconnect_network()
-	get_tree().change_scene_to_file("res://scenes/menu/main_menu.tscn")
+	GameSettings.return_to_mode_select = true
+	SceneTransition.fade_out("res://scenes/menu/main_menu.tscn")
 
 
 func _show_kicked_dialog() -> void:

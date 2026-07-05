@@ -24,7 +24,6 @@ func _ready() -> void:
 	print("[UpdateManager] 当前版本: %s" % current_version)
 	
 	http_request = HTTPRequest.new()
-	http_request.tls_options = TLSOptions.client_unsafe()
 	http_request.timeout = 10.0
 	add_child(http_request)
 	http_request.request_completed.connect(_on_request_completed)
@@ -149,8 +148,8 @@ func _get_download_url(data: Dictionary) -> String:
 	var assets: Array = data.get("assets", [])
 	
 	for asset in assets:
-		var name: String = asset.get("name", "").lower()
-		if "win" in name or "windows" in name:
+		var asset_name: String = asset.get("name", "").lower()
+		if "win" in asset_name or "windows" in asset_name:
 			return asset.get("browser_download_url", "")
 	
 	if assets.size() > 0:

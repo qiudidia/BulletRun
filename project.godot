@@ -27,6 +27,8 @@ NetworkManager="*res://Autoload/NetworkManager.gd"
 LoadoutManager="*res://Autoload/LoadoutManager.gd"
 BGMManager="*res://Autoload/BGMManager.gd"
 UpdateManager="*res://scripts/Autoload/UpdateManager.gd"
+SceneTransition="*res://scripts/SceneTransition.gd"
+UIStyle="*res://scripts/UIStyle.gd"
 
 [display]
 

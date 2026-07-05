@@ -8,6 +8,9 @@ extends Node
 const SETTINGS_FILE: String = "user://settings.cfg"
 var config: ConfigFile = ConfigFile.new()
 
+# 临时状态：从联机大厅返回时直接显示模式选择界面
+var return_to_mode_select: bool = false
+
 # 当前语言: 0=中文, 1=English
 var _lang: int = 0
 

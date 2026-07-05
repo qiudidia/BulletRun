@@ -37,6 +37,9 @@ func _ready() -> void:
 	_create_player_info_panel()
 	_create_version_label()
 	BGMManager.play_bgm()
+	if GameSettings.return_to_mode_select:
+		GameSettings.return_to_mode_select = false
+		_on_start_pressed()
 
 
 func _create_dynamic_background() -> void:
@@ -83,34 +86,12 @@ func _create_main_menu() -> void:
 	
 	var subtitle: Label = Label.new()
 	subtitle.name = "Subtitle"
-	subtitle.text = "// TACTICAL COMBAT SIMULATOR //"
+	subtitle.text = "// 2D Top-Down Shooter //"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 18)
 	subtitle.add_theme_color_override("font_color", Color(0.4, 0.7, 1.0, 0.8))
 	subtitle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_vbox.add_child(subtitle)
-	
-	var sep_hbox: HBoxContainer = HBoxContainer.new()
-	sep_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	sep_hbox.add_theme_constant_override("separation", 15)
-	sep_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_vbox.add_child(sep_hbox)
-	
-	var left_line: ColorRect = ColorRect.new()
-	left_line.custom_minimum_size = Vector2(120, 2)
-	left_line.color = Color(0.3, 0.6, 1.0, 0.5)
-	sep_hbox.add_child(left_line)
-	
-	var diamond: Label = Label.new()
-	diamond.text = ">>"
-	diamond.add_theme_font_size_override("font_size", 14)
-	diamond.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3, 1.0))
-	sep_hbox.add_child(diamond)
-	
-	var right_line: ColorRect = ColorRect.new()
-	right_line.custom_minimum_size = Vector2(120, 2)
-	right_line.color = Color(0.3, 0.6, 1.0, 0.5)
-	sep_hbox.add_child(right_line)
 	
 	var btn_container: VBoxContainer = VBoxContainer.new()
 	btn_container.name = "ButtonContainer"
@@ -119,23 +100,23 @@ func _create_main_menu() -> void:
 	btn_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	main_container.add_child(btn_container)
 	
-	start_btn = _create_glow_button("StartBtn", "start_game", "[>]", Color(0.2, 0.8, 0.5, 1.0))
+	start_btn = _create_glow_button("StartBtn", "start_game", "", Color(0.2, 0.8, 0.5, 1.0))
 	start_btn.pressed.connect(_on_start_pressed)
 	btn_container.add_child(start_btn)
 	
-	loadout_btn = _create_glow_button("LoadoutBtn", "loadout", "[X]", Color(0.9, 0.6, 0.2, 1.0))
+	loadout_btn = _create_glow_button("LoadoutBtn", "loadout", "", Color(0.9, 0.6, 0.2, 1.0))
 	loadout_btn.pressed.connect(_on_loadout_pressed)
 	btn_container.add_child(loadout_btn)
 	
-	settings_btn = _create_glow_button("SettingsBtn", "settings", "[O]", Color(0.3, 0.6, 1.0, 1.0))
+	settings_btn = _create_glow_button("SettingsBtn", "settings", "", Color(0.3, 0.6, 1.0, 1.0))
 	settings_btn.pressed.connect(_on_settings_pressed)
 	btn_container.add_child(settings_btn)
 	
-	about_btn = _create_glow_button("AboutBtn", "about_game", "[i]", Color(0.6, 0.4, 0.9, 1.0))
+	about_btn = _create_glow_button("AboutBtn", "about_game", "", Color(0.6, 0.4, 0.9, 1.0))
 	about_btn.pressed.connect(_on_about_pressed)
 	btn_container.add_child(about_btn)
 	
-	quit_btn = _create_glow_button("QuitBtn", "quit_game", "[X]", Color(0.9, 0.3, 0.3, 1.0))
+	quit_btn = _create_glow_button("QuitBtn", "quit_game", "", Color(0.9, 0.3, 0.3, 1.0))
 	quit_btn.pressed.connect(_on_quit_pressed)
 	btn_container.add_child(quit_btn)
 
@@ -143,62 +124,65 @@ func _create_main_menu() -> void:
 func _create_glow_button(btn_name: String, text_key: String, icon: String, color: Color) -> Button:
 	var btn: Button = Button.new()
 	btn.name = btn_name
-	btn.custom_minimum_size = Vector2(320, 56)
-	btn.text = "  " + icon + "  " + GameSettings.t(text_key)
-	btn.add_theme_font_size_override("font_size", 20)
-	btn.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+	btn.custom_minimum_size = Vector2(280, 52)
+	if icon != "":
+		btn.text = "  " + icon + "  " + GameSettings.t(text_key)
+	else:
+		btn.text = GameSettings.t(text_key)
+	btn.add_theme_font_size_override("font_size", 18)
+	btn.add_theme_color_override("font_color", Color(0.85, 0.9, 1.0, 1))
 	btn.add_theme_color_override("font_hover_color", Color(1, 1, 1, 1))
-	btn.add_theme_color_override("font_pressed_color", Color(1, 1, 1, 0.8))
+	btn.add_theme_color_override("font_pressed_color", Color(1, 1, 1, 0.9))
 	
 	var normal_style: StyleBoxFlat = StyleBoxFlat.new()
-	normal_style.bg_color = Color(0.06, 0.08, 0.12, 0.9)
-	normal_style.border_color = color * 0.6
-	normal_style.border_width_left = 3
-	normal_style.border_width_right = 3
+	normal_style.bg_color = Color(0.08, 0.1, 0.14, 0.85)
+	normal_style.border_color = color * 0.4
+	normal_style.border_width_left = 1
+	normal_style.border_width_right = 1
 	normal_style.border_width_top = 1
 	normal_style.border_width_bottom = 1
-	normal_style.corner_radius_top_left = 6
-	normal_style.corner_radius_top_right = 6
-	normal_style.corner_radius_bottom_left = 6
-	normal_style.corner_radius_bottom_right = 6
+	normal_style.corner_radius_top_left = 8
+	normal_style.corner_radius_top_right = 8
+	normal_style.corner_radius_bottom_left = 8
+	normal_style.corner_radius_bottom_right = 8
 	normal_style.content_margin_left = 20
 	normal_style.content_margin_right = 20
-	normal_style.content_margin_top = 12
-	normal_style.content_margin_bottom = 12
+	normal_style.content_margin_top = 10
+	normal_style.content_margin_bottom = 10
 	btn.add_theme_stylebox_override("normal", normal_style)
 	
 	var hover_style: StyleBoxFlat = StyleBoxFlat.new()
-	hover_style.bg_color = color * 0.15 + Color(0.06, 0.08, 0.12, 0.9)
-	hover_style.border_color = color
-	hover_style.border_width_left = 3
-	hover_style.border_width_right = 3
-	hover_style.border_width_top = 2
-	hover_style.border_width_bottom = 2
-	hover_style.corner_radius_top_left = 6
-	hover_style.corner_radius_top_right = 6
-	hover_style.corner_radius_bottom_left = 6
-	hover_style.corner_radius_bottom_right = 6
+	hover_style.bg_color = color * 0.12 + Color(0.08, 0.1, 0.14, 0.9)
+	hover_style.border_color = color * 0.7
+	hover_style.border_width_left = 1
+	hover_style.border_width_right = 1
+	hover_style.border_width_top = 1
+	hover_style.border_width_bottom = 1
+	hover_style.corner_radius_top_left = 8
+	hover_style.corner_radius_top_right = 8
+	hover_style.corner_radius_bottom_left = 8
+	hover_style.corner_radius_bottom_right = 8
 	hover_style.content_margin_left = 20
 	hover_style.content_margin_right = 20
-	hover_style.content_margin_top = 12
-	hover_style.content_margin_bottom = 12
+	hover_style.content_margin_top = 10
+	hover_style.content_margin_bottom = 10
 	btn.add_theme_stylebox_override("hover", hover_style)
 	
 	var pressed_style: StyleBoxFlat = StyleBoxFlat.new()
-	pressed_style.bg_color = color * 0.25 + Color(0.04, 0.06, 0.1, 0.9)
-	pressed_style.border_color = color * 0.8
-	pressed_style.border_width_left = 3
-	pressed_style.border_width_right = 3
-	pressed_style.border_width_top = 2
-	pressed_style.border_width_bottom = 2
-	pressed_style.corner_radius_top_left = 6
-	pressed_style.corner_radius_top_right = 6
-	pressed_style.corner_radius_bottom_left = 6
-	pressed_style.corner_radius_bottom_right = 6
+	pressed_style.bg_color = color * 0.2 + Color(0.06, 0.08, 0.12, 0.9)
+	pressed_style.border_color = color * 0.6
+	pressed_style.border_width_left = 1
+	pressed_style.border_width_right = 1
+	pressed_style.border_width_top = 1
+	pressed_style.border_width_bottom = 1
+	pressed_style.corner_radius_top_left = 8
+	pressed_style.corner_radius_top_right = 8
+	pressed_style.corner_radius_bottom_left = 8
+	pressed_style.corner_radius_bottom_right = 8
 	pressed_style.content_margin_left = 20
 	pressed_style.content_margin_right = 20
-	pressed_style.content_margin_top = 13
-	pressed_style.content_margin_bottom = 11
+	pressed_style.content_margin_top = 10
+	pressed_style.content_margin_bottom = 10
 	btn.add_theme_stylebox_override("pressed", pressed_style)
 	
 	btn.pressed.connect(UIAudio.play_click)
@@ -297,22 +281,22 @@ func _create_mode_select_screen() -> void:
 	
 	var back_btn: Button = Button.new()
 	back_btn.name = "BackBtn"
-	back_btn.custom_minimum_size = Vector2(200, 45)
-	back_btn.text = "<-  " + GameSettings.t("back")
-	back_btn.add_theme_font_size_override("font_size", 18)
+	back_btn.custom_minimum_size = Vector2(180, 44)
+	back_btn.text = GameSettings.t("back")
+	back_btn.add_theme_font_size_override("font_size", 17)
 	back_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	
 	var back_style: StyleBoxFlat = StyleBoxFlat.new()
-	back_style.bg_color = Color(0.08, 0.1, 0.14, 0.9)
-	back_style.border_color = Color(0.4, 0.5, 0.7, 0.6)
-	back_style.border_width_left = 2
-	back_style.border_width_right = 2
+	back_style.bg_color = Color(0.08, 0.1, 0.14, 0.85)
+	back_style.border_color = Color(0.35, 0.4, 0.5, 0.5)
+	back_style.border_width_left = 1
+	back_style.border_width_right = 1
 	back_style.border_width_top = 1
 	back_style.border_width_bottom = 1
-	back_style.corner_radius_top_left = 6
-	back_style.corner_radius_top_right = 6
-	back_style.corner_radius_bottom_left = 6
-	back_style.corner_radius_bottom_right = 6
+	back_style.corner_radius_top_left = 8
+	back_style.corner_radius_top_right = 8
+	back_style.corner_radius_bottom_left = 8
+	back_style.corner_radius_bottom_right = 8
 	back_style.content_margin_left = 20
 	back_style.content_margin_right = 20
 	back_style.content_margin_top = 10
@@ -320,16 +304,16 @@ func _create_mode_select_screen() -> void:
 	back_btn.add_theme_stylebox_override("normal", back_style)
 	
 	var back_hover: StyleBoxFlat = StyleBoxFlat.new()
-	back_hover.bg_color = Color(0.12, 0.16, 0.22, 0.9)
-	back_hover.border_color = Color(0.5, 0.7, 1.0, 0.8)
-	back_hover.border_width_left = 2
-	back_hover.border_width_right = 2
-	back_hover.border_width_top = 2
-	back_hover.border_width_bottom = 2
-	back_hover.corner_radius_top_left = 6
-	back_hover.corner_radius_top_right = 6
-	back_hover.corner_radius_bottom_left = 6
-	back_hover.corner_radius_bottom_right = 6
+	back_hover.bg_color = Color(0.1, 0.13, 0.18, 0.9)
+	back_hover.border_color = Color(0.4, 0.5, 0.7, 0.6)
+	back_hover.border_width_left = 1
+	back_hover.border_width_right = 1
+	back_hover.border_width_top = 1
+	back_hover.border_width_bottom = 1
+	back_hover.corner_radius_top_left = 8
+	back_hover.corner_radius_top_right = 8
+	back_hover.corner_radius_bottom_left = 8
+	back_hover.corner_radius_bottom_right = 8
 	back_hover.content_margin_left = 20
 	back_hover.content_margin_right = 20
 	back_hover.content_margin_top = 10
@@ -344,15 +328,15 @@ func _create_mode_select_screen() -> void:
 func _create_mode_card(card_name: String, icon: String, title_key: String, desc_key: String, color: Color) -> PanelContainer:
 	var card: PanelContainer = PanelContainer.new()
 	card.name = card_name
-	card.custom_minimum_size = Vector2(280, 380)
+	card.custom_minimum_size = Vector2(260, 360)
 	
 	var normal_style: StyleBoxFlat = StyleBoxFlat.new()
-	normal_style.bg_color = Color(0.05, 0.07, 0.1, 0.95)
-	normal_style.border_color = color * 0.4
-	normal_style.border_width_left = 2
-	normal_style.border_width_right = 2
-	normal_style.border_width_top = 2
-	normal_style.border_width_bottom = 4
+	normal_style.bg_color = Color(0.06, 0.08, 0.12, 0.9)
+	normal_style.border_color = color * 0.3
+	normal_style.border_width_left = 1
+	normal_style.border_width_right = 1
+	normal_style.border_width_top = 1
+	normal_style.border_width_bottom = 1
 	normal_style.corner_radius_top_left = 12
 	normal_style.corner_radius_top_right = 12
 	normal_style.corner_radius_bottom_left = 12
@@ -408,22 +392,22 @@ func _create_mode_card(card_name: String, icon: String, title_key: String, desc_
 	
 	var play_btn: Button = Button.new()
 	play_btn.name = "PlayBtn"
-	play_btn.custom_minimum_size = Vector2(0, 50)
-	play_btn.text = "[>]  " + GameSettings.t("start_game")
-	play_btn.add_theme_font_size_override("font_size", 18)
+	play_btn.custom_minimum_size = Vector2(0, 46)
+	play_btn.text = GameSettings.t("start_game")
+	play_btn.add_theme_font_size_override("font_size", 17)
 	play_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	var btn_normal: StyleBoxFlat = StyleBoxFlat.new()
-	btn_normal.bg_color = color * 0.2
-	btn_normal.border_color = color * 0.7
-	btn_normal.border_width_left = 2
-	btn_normal.border_width_right = 2
+	btn_normal.bg_color = color * 0.15
+	btn_normal.border_color = color * 0.5
+	btn_normal.border_width_left = 1
+	btn_normal.border_width_right = 1
 	btn_normal.border_width_top = 1
-	btn_normal.border_width_bottom = 2
-	btn_normal.corner_radius_top_left = 6
-	btn_normal.corner_radius_top_right = 6
-	btn_normal.corner_radius_bottom_left = 6
-	btn_normal.corner_radius_bottom_right = 6
+	btn_normal.border_width_bottom = 1
+	btn_normal.corner_radius_top_left = 8
+	btn_normal.corner_radius_top_right = 8
+	btn_normal.corner_radius_bottom_left = 8
+	btn_normal.corner_radius_bottom_right = 8
 	btn_normal.content_margin_left = 15
 	btn_normal.content_margin_right = 15
 	btn_normal.content_margin_top = 10
@@ -431,16 +415,16 @@ func _create_mode_card(card_name: String, icon: String, title_key: String, desc_
 	play_btn.add_theme_stylebox_override("normal", btn_normal)
 	
 	var btn_hover: StyleBoxFlat = StyleBoxFlat.new()
-	btn_hover.bg_color = color * 0.35
-	btn_hover.border_color = color
-	btn_hover.border_width_left = 2
-	btn_hover.border_width_right = 2
-	btn_hover.border_width_top = 2
-	btn_hover.border_width_bottom = 2
-	btn_hover.corner_radius_top_left = 6
-	btn_hover.corner_radius_top_right = 6
-	btn_hover.corner_radius_bottom_left = 6
-	btn_hover.corner_radius_bottom_right = 6
+	btn_hover.bg_color = color * 0.25
+	btn_hover.border_color = color * 0.7
+	btn_hover.border_width_left = 1
+	btn_hover.border_width_right = 1
+	btn_hover.border_width_top = 1
+	btn_hover.border_width_bottom = 1
+	btn_hover.corner_radius_top_left = 8
+	btn_hover.corner_radius_top_right = 8
+	btn_hover.corner_radius_bottom_left = 8
+	btn_hover.corner_radius_bottom_right = 8
 	btn_hover.content_margin_left = 15
 	btn_hover.content_margin_right = 15
 	btn_hover.content_margin_top = 10
@@ -466,6 +450,7 @@ func _on_settings_pressed() -> void:
 		return
 	settings_instance = settings_scene.instantiate()
 	settings_instance.on_close_callback = func(): _on_settings_closed()
+	get_node("MainMenuContainer").visible = false
 	add_child(settings_instance)
 
 
@@ -473,6 +458,7 @@ func _on_settings_closed() -> void:
 	if settings_instance:
 		settings_instance.queue_free()
 		settings_instance = null
+	get_node_or_null("MainMenuContainer").visible = true
 	_apply_language()
 
 
@@ -482,22 +468,22 @@ func _on_quit_pressed() -> void:
 
 func _on_loadout_pressed() -> void:
 	BGMManager.stop_bgm()
-	get_tree().change_scene_to_file("res://scenes/loadout/LoadoutMenu.tscn")
+	SceneTransition.fade_out("res://scenes/loadout/LoadoutMenu.tscn")
 
 
 func _on_bot_mode_pressed() -> void:
 	BGMManager.stop_bgm()
-	get_tree().change_scene_to_file("res://scenes/game/bot_mode/bot_game.tscn")
+	SceneTransition.fade_out("res://scenes/game/bot_mode/bot_game.tscn")
 
 
 func _on_zombie_mode_pressed() -> void:
 	BGMManager.stop_bgm()
-	get_tree().change_scene_to_file("res://scenes/game/zombie_mode/zombie_game.tscn")
+	SceneTransition.fade_out("res://scenes/game/zombie_mode/zombie_game.tscn")
 
 
 func _on_multiplayer_pressed() -> void:
 	BGMManager.stop_bgm()
-	get_tree().change_scene_to_file("res://scenes/multiplayer/Lobby.tscn")
+	SceneTransition.fade_out("res://scenes/multiplayer/Lobby.tscn")
 
 
 func _on_back_pressed() -> void:
@@ -1066,7 +1052,7 @@ func _on_avatar_selected(id: int) -> void:
 func _create_version_label() -> void:
 	var version_label: Label = Label.new()
 	version_label.name = "VersionLabel"
-	version_label.text = "v" + UpdateManager.get_current_version()
+	version_label.text = UpdateManager.get_current_version()
 	version_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	version_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	version_label.add_theme_font_size_override("font_size", 14)

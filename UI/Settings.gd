@@ -50,7 +50,19 @@ var waiting_for_input: String = ""
 
 func _ready() -> void:
 	back_btn.pressed.connect(_on_back_pressed)
-
+	
+	# 添加动态背景
+	var bg_script: GDScript = load("res://scripts/DynamicBackground.gd")
+	var bg_node := Control.new()
+	bg_node.name = "DynamicBG"
+	bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	bg_node.set_script(bg_script)
+	add_child(bg_node)
+	move_child(bg_node, 0)
+	
+	# 自定义TabContainer样式
+	_style_tab_container()
+	
 	# 信号连接
 	resolution_opt.item_selected.connect(_on_resolution_changed)
 	fullscreen_chk.toggled.connect(_on_fullscreen_toggled)
@@ -81,7 +93,54 @@ func _connect_click_sounds(node: Node) -> void:
 	for child in node.get_children():
 		_connect_click_sounds(child)
 		if child is Button:
-			child.pressed.connect(UIAudio.play_click)
+			if not child.pressed.is_connected(UIAudio.play_click):
+				child.pressed.connect(UIAudio.play_click)
+
+func _style_tab_container() -> void:
+	if not tab_container:
+		return
+	var active_tab_style := StyleBoxFlat.new()
+	active_tab_style.bg_color = Color(0.08, 0.12, 0.18, 0.95)
+	active_tab_style.border_color = Color(0.3, 0.6, 1.0, 0.7)
+	active_tab_style.border_width_left = 2
+	active_tab_style.border_width_right = 2
+	active_tab_style.border_width_top = 2
+	active_tab_style.border_width_bottom = 0
+	active_tab_style.corner_radius_top_left = 8
+	active_tab_style.corner_radius_top_right = 8
+	active_tab_style.corner_radius_bottom_left = 0
+	active_tab_style.corner_radius_bottom_right = 0
+	active_tab_style.content_margin_left = 16
+	active_tab_style.content_margin_right = 16
+	active_tab_style.content_margin_top = 8
+	active_tab_style.content_margin_bottom = 8
+	
+	var inactive_tab_style := StyleBoxFlat.new()
+	inactive_tab_style.bg_color = Color(0.05, 0.07, 0.1, 0.8)
+	inactive_tab_style.border_color = Color(0.2, 0.3, 0.5, 0.4)
+	inactive_tab_style.border_width_left = 1
+	inactive_tab_style.border_width_right = 1
+	inactive_tab_style.border_width_top = 1
+	inactive_tab_style.border_width_bottom = 1
+	inactive_tab_style.corner_radius_top_left = 8
+	inactive_tab_style.corner_radius_top_right = 8
+	inactive_tab_style.corner_radius_bottom_left = 6
+	inactive_tab_style.corner_radius_bottom_right = 6
+	inactive_tab_style.content_margin_left = 16
+	inactive_tab_style.content_margin_right = 16
+	inactive_tab_style.content_margin_top = 8
+	inactive_tab_style.content_margin_bottom = 8
+	
+	tab_container.add_theme_stylebox_override("tab_enabled", inactive_tab_style)
+	tab_container.add_theme_stylebox_override("tab_selected", active_tab_style)
+	tab_container.add_theme_stylebox_override("tab_hover", inactive_tab_style)
+	tab_container.add_theme_stylebox_override("tab_hover_selected", active_tab_style)
+	tab_container.add_theme_stylebox_override("tab_disabled", inactive_tab_style)
+	
+	var font_color := Color(0.6, 0.7, 0.9, 1)
+	var font_color_selected := Color(0.4, 0.7, 1.0, 1)
+	tab_container.add_theme_color_override("font_color", font_color)
+	tab_container.add_theme_color_override("font_color_selected", font_color_selected)
 
 func _apply_language() -> void:
 	# 标签页名称
@@ -268,6 +327,9 @@ func load_current_settings() -> void:
 	sensitivity_slider.value = GameSettings.get_value("controls", "mouse_sensitivity", 1.0) * 50.0
 	invert_y_chk.button_pressed = GameSettings.get_value("controls", "invert_y", false)
 	sens_label.text = GameSettings.t("sensitivity") + ": %.1f" % sensitivity_slider.value
+	
+	_style_sliders()
+	_style_checkboxes()
 
 	crosshair_opt.selected = GameSettings.get_value("game", "crosshair_style", 0)
 	crosshair_color_btn.color = GameSettings.get_value("game", "crosshair_color", Color(0, 1, 0, 1))
@@ -282,8 +344,7 @@ func _on_back_pressed() -> void:
 	if on_close_callback.is_valid():
 		on_close_callback.call()
 	else:
-		# 保底：如果没有设置回调，直接退出到主菜单
-		get_tree().change_scene_to_file("res://scenes/menu/main_menu.tscn")
+		SceneTransition.fade_out("res://scenes/menu/main_menu.tscn")
 
 # ---- 视频 ----
 func _on_resolution_changed(index: int) -> void:
@@ -355,3 +416,64 @@ func _on_show_fps_toggled(on: bool) -> void:
 func _on_language_changed(index: int) -> void:
 	GameSettings.set_language(index)
 	_apply_language()
+
+func _style_sliders() -> void:
+	var sliders: Array = [master_slider, bgm_slider, sfx_slider, sensitivity_slider]
+	for slider in sliders:
+		if not slider:
+			continue
+		var bg_style := StyleBoxFlat.new()
+		bg_style.bg_color = Color(0.1, 0.12, 0.16, 1)
+		bg_style.corner_radius_top_left = 4
+		bg_style.corner_radius_top_right = 4
+		bg_style.corner_radius_bottom_left = 4
+		bg_style.corner_radius_bottom_right = 4
+		bg_style.set("expand_margin_left", 0)
+		bg_style.set("expand_margin_right", 0)
+		bg_style.set("expand_margin_top", 0)
+		bg_style.set("expand_margin_bottom", 0)
+		
+		var fill_style := StyleBoxFlat.new()
+		fill_style.bg_color = Color(0.3, 0.7, 1.0, 0.8)
+		fill_style.corner_radius_top_left = 4
+		fill_style.corner_radius_top_right = 4
+		fill_style.corner_radius_bottom_left = 4
+		fill_style.corner_radius_bottom_right = 4
+		fill_style.set("expand_margin_left", 0)
+		fill_style.set("expand_margin_right", 0)
+		fill_style.set("expand_margin_top", 0)
+		fill_style.set("expand_margin_bottom", 0)
+		
+		slider.add_theme_stylebox_override("slider", bg_style)
+		slider.add_theme_stylebox_override("fill", fill_style)
+
+func _style_checkboxes() -> void:
+	var checkboxes: Array = [fullscreen_chk, vsync_chk, invert_y_chk, show_fps_chk]
+	for cb in checkboxes:
+		if not cb:
+			continue
+		var normal_style := StyleBoxFlat.new()
+		normal_style.bg_color = Color(0.06, 0.08, 0.12, 0.9)
+		normal_style.border_color = Color(0.3, 0.5, 0.8, 0.5)
+		normal_style.border_width_left = 2
+		normal_style.border_width_right = 2
+		normal_style.border_width_top = 2
+		normal_style.border_width_bottom = 2
+		normal_style.corner_radius_top_left = 4
+		normal_style.corner_radius_top_right = 4
+		normal_style.corner_radius_bottom_left = 4
+		normal_style.corner_radius_bottom_right = 4
+		cb.add_theme_stylebox_override("normal", normal_style)
+		
+		var hover_style := StyleBoxFlat.new()
+		hover_style.bg_color = Color(0.1, 0.14, 0.2, 0.9)
+		hover_style.border_color = Color(0.4, 0.6, 1.0, 0.7)
+		hover_style.border_width_left = 2
+		hover_style.border_width_right = 2
+		hover_style.border_width_top = 2
+		hover_style.border_width_bottom = 2
+		hover_style.corner_radius_top_left = 4
+		hover_style.corner_radius_top_right = 4
+		hover_style.corner_radius_bottom_left = 4
+		hover_style.corner_radius_bottom_right = 4
+		cb.add_theme_stylebox_override("hover", hover_style)
