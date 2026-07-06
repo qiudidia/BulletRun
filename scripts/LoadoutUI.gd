@@ -65,7 +65,7 @@ func _build_ui() -> void:
 
 
 func _create_left_panel(parent: Container) -> void:
-	var main_hbox: HBoxContainer = parent.get_parent()
+	var _main_hbox: HBoxContainer = parent.get_parent()
 	
 	var left_panel := PanelContainer.new()
 	left_panel.name = "LeftPanel"
@@ -89,8 +89,7 @@ func _create_left_panel(parent: Container) -> void:
 	left_style.content_margin_right = 12
 	left_panel.add_theme_stylebox_override("panel", left_style)
 	
-	var main_hbox_ref: HBoxContainer = parent.get_parent()
-	main_hbox_ref.add_child(left_panel)
+	_main_hbox.add_child(left_panel)
 	
 	var left_vbox := VBoxContainer.new()
 	left_vbox.name = "LeftVBox"
@@ -125,11 +124,10 @@ func _create_left_panel(parent: Container) -> void:
 		
 		if i == _selected_index:
 			btn.add_theme_color_override("font_color", Color(1, 0.85, 0.5, 1))
-			_loadout_buttons.append(_create_selected_style())
+			_loadout_buttons.append({"btn": btn, "styles": _create_selected_style()})
 		else:
-			_loadout_buttons.append(_create_unselected_style())
+			_loadout_buttons.append({"btn": btn, "styles": _create_unselected_style()})
 		
-		_apply_loadout_style(i)
 		btn.pressed.connect(func(): _on_loadout_selected(i))
 		left_vbox.add_child(btn)
 	
@@ -257,20 +255,13 @@ func _create_unselected_style() -> Dictionary:
 func _apply_loadout_style(index: int) -> void:
 	if index >= _loadout_buttons.size():
 		return
-	var btn: Button = left_vbox_of_selected_index(index).get_child(2 + index) as Button
-	if not btn:
+	var entry = _loadout_buttons[index]
+	var btn: Button = entry.get("btn")
+	var styles = entry.get("styles")
+	if not btn or not styles:
 		return
-	var styles = _loadout_buttons[index]
-	if index == _selected_index:
-		btn.add_theme_stylebox_override("normal", styles["normal"])
-		btn.add_theme_stylebox_override("hover", styles["hover"])
-	else:
-		btn.add_theme_stylebox_override("normal", styles["normal"])
-		btn.add_theme_stylebox_override("hover", styles["hover"])
-
-
-func left_vbox_of_selected_index(_idx: int) -> VBoxContainer:
-	return get_node("MainHBox/Margin/LeftPanel/LeftVBox")
+	btn.add_theme_stylebox_override("normal", styles["normal"])
+	btn.add_theme_stylebox_override("hover", styles["hover"])
 
 
 func _create_right_panel(parent: Container) -> void:

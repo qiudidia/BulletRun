@@ -157,7 +157,7 @@ const TRANSLATIONS: Dictionary = {
 	"deploy": {"zh": "部署", "en": "Deploy"},
 	"quit": {"zh": "退出", "en": "Quit"},
 	"shop_hint": {"zh": "按 E 打开商店", "en": "Press E to open shop"},
-	"bot_shop_title": {"zh": "BOT 商店", "en": "BOT Shop"},
+	"bot_shop_title": {"zh": "商店", "en": "Shop"},
 	"current_kills": {"zh": "当前人头", "en": "Kills"},
 	"close": {"zh": "关闭", "en": "Close"},
 	"purchased": {"zh": "已购买", "en": "Purchased"},
