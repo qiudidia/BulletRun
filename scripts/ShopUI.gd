@@ -18,15 +18,15 @@ var purchased_items: Array = []
 
 var item_buttons: Array = []
 
-# 商品定义 [id, 名称, 花费人头数, 描述, 图标]
+# 商品定义 [id, 名称key, 花费人头数, 描述key, 图标]
 var items: Array = [
-	{"id": 0, "name": "补满弹药", "cost": 2, "desc": "补满当前武器的弹匣+备用弹", "icon": "A"},
-	{"id": 1, "name": "医疗包", "cost": 1, "desc": "恢复 50 点生命值", "icon": "+"},
-	{"id": 2, "name": "升级伤害", "cost": 10, "desc": "所有武器伤害 +10", "icon": "S"},
-	{"id": 3, "name": "无限子弹", "cost": 30, "desc": "当前武器弹匣无限（仍可换弹显示）", "icon": "\u221e"},
-	{"id": 4, "name": "核爆", "cost": 40, "desc": "立即结束游戏，玩家已核爆", "icon": "N"},
-	{"id": 5, "name": "手榴弹", "cost": 8, "desc": "获得 1 颗手榴弹（按 G 长按瞄准松开投掷）", "icon": "G"},
-	{"id": 6, "name": "机枪", "cost": 12, "desc": "解锁机枪武器（按 5 切换）", "icon": "M"},
+	{"id": 0, "name_key": "shop_ammo", "cost": 2, "desc_key": "shop_ammo_desc", "icon": "A"},
+	{"id": 1, "name_key": "shop_medkit", "cost": 1, "desc_key": "shop_medkit_desc", "icon": "+"},
+	{"id": 2, "name_key": "shop_damage", "cost": 10, "desc_key": "shop_damage_desc", "icon": "S"},
+	{"id": 3, "name_key": "shop_infinite_ammo", "cost": 30, "desc_key": "shop_infinite_ammo_desc", "icon": "\u221e"},
+	{"id": 4, "name_key": "shop_nuke", "cost": 40, "desc_key": "shop_nuke_desc", "icon": "N"},
+	{"id": 5, "name_key": "shop_grenade", "cost": 8, "desc_key": "shop_grenade_desc", "icon": "G"},
+	{"id": 6, "name_key": "shop_machinegun", "cost": 12, "desc_key": "shop_machinegun_desc", "icon": "M"},
 ]
 
 
@@ -37,6 +37,7 @@ func _ready() -> void:
 	if close_btn:
 		close_btn.pressed.connect(_on_close)
 
+	_apply_language()
 	_refresh_ui()
 
 
@@ -60,9 +61,16 @@ func set_kills(kills: int) -> void:
 	_refresh_ui()
 
 
+func _apply_language() -> void:
+	if title_label:
+		title_label.text = GameSettings.t("bot_shop_title")
+	if close_btn:
+		close_btn.text = GameSettings.t("close") + " (E)"
+
+
 func _refresh_ui() -> void:
 	if kills_label:
-		kills_label.text = "当前人头: %d" % current_kills
+		kills_label.text = GameSettings.t("current_kills") + ": %d" % current_kills
 
 	if not item_list:
 		return
@@ -164,7 +172,7 @@ func _create_shop_item(item: Dictionary) -> PanelContainer:
 	info_vbox.add_child(name_hbox)
 	
 	var name_label := Label.new()
-	name_label.text = item.name
+	name_label.text = GameSettings.t(item.name_key)
 	name_label.add_theme_font_size_override("font_size", 15)
 	if is_purchased:
 		name_label.add_theme_color_override("font_color", Color(0.7, 0.4, 0.4, 1))
@@ -180,10 +188,10 @@ func _create_shop_item(item: Dictionary) -> PanelContainer:
 	cost_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	cost_label.add_theme_font_size_override("font_size", 14)
 	if is_purchased:
-		cost_label.text = "[已购买]"
+		cost_label.text = "[" + GameSettings.t("purchased") + "]"
 		cost_label.add_theme_color_override("font_color", Color(0.6, 0.3, 0.3, 1))
 	else:
-		cost_label.text = "[%d 人头]" % item.cost
+		cost_label.text = "[" + GameSettings.t("kills_cost") % [item.cost] + "]"
 		if affordable:
 			cost_label.add_theme_color_override("font_color", Color(1, 0.85, 0.3, 1))
 		else:
@@ -191,7 +199,7 @@ func _create_shop_item(item: Dictionary) -> PanelContainer:
 	name_hbox.add_child(cost_label)
 	
 	var desc_label := Label.new()
-	desc_label.text = item.desc
+	desc_label.text = GameSettings.t(item.desc_key)
 	desc_label.add_theme_font_size_override("font_size", 12)
 	desc_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.65, 1))
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -199,7 +207,7 @@ func _create_shop_item(item: Dictionary) -> PanelContainer:
 	
 	# 购买按钮
 	var buy_btn := Button.new()
-	buy_btn.text = "购买" if not is_purchased else "已购"
+	buy_btn.text = GameSettings.t("buy") if not is_purchased else GameSettings.t("owned")
 	buy_btn.custom_minimum_size = Vector2(80, 36)
 	buy_btn.add_theme_font_size_override("font_size", 14)
 	buy_btn.disabled = is_purchased or not affordable

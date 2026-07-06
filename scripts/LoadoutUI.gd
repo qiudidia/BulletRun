@@ -315,7 +315,7 @@ func _create_right_panel(parent: Container) -> void:
 func _create_name_section(parent: Container) -> void:
 	var name_label := Label.new()
 	name_label.name = "NameLabel"
-	name_label.text = GameSettings.t("loadout") + " \u540d\u79f0:"
+	name_label.text = GameSettings.t("loadout_name") + ":"
 	name_label.add_theme_font_size_override("font_size", 13)
 	name_label.add_theme_color_override("font_color", Color(0.5, 0.55, 0.65, 1))
 	parent.add_child(name_label)

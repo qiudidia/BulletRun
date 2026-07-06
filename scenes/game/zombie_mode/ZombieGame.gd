@@ -1121,7 +1121,11 @@ func _spawn_treasure_chest() -> void:
 	)
 	# 确保不在玩家附近
 	if player and pos.distance_to(player.global_position) < 300.0:
-		pos = player.global_position + Vector2(400, 0).rotated(randf_range(0, TAU))
+		var offset: Vector2 = Vector2(400, 0).rotated(randf_range(0, TAU))
+		pos = player.global_position + offset
+		# 确保不出地图边界
+		pos.x = clamp(pos.x, bounds.position.x, bounds.end.x)
+		pos.y = clamp(pos.y, bounds.position.y, bounds.end.y)
 	chest.global_position = pos
 	
 	chest_container.add_child(chest)
